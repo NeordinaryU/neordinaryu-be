@@ -1,12 +1,8 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -14,79 +10,90 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id           Int         @id @default(autoincrement())
-  userId       String      @unique @db.VarChar(100)
-  name         String      @db.VarChar(100)
-  email        String      @unique @db.VarChar(255)
-  password     String      @db.VarChar(100)
-  status       String      // ENUM은 Prisma에서 enum 타입으로 따로 정의 가능
-  inactiveDate DateTime?   @db.DateTime(6)
-  CreatedAt    DateTime    @db.DateTime(6)
-  magazines    Megazine[]
-  joinedUsers  JoinedUser[]
-  fundings     Funding[]
-  region       Region 
-}
-
-model Megazine {
-  id        Int      @id @default(autoincrement())
-  UserId    Int
-  title     String   @db.VarChar(255)
-  body      String
-  CreatedAt DateTime @db.DateTime(6)
-  user      User     @relation(fields: [UserId], references: [id])
-}
-
-model Session {
-  id        String   @id
-  sid       String   @unique
-  data      String   @db.VarChar(512)
-  expiresAt DateTime @map("expires_at")
-
-  @@map("session")
-}
-
-model Funding {
-  id            Int       @id @default(autoincrement())
-  title         String    @db.VarChar(255)
-  description   String?
-  goalMoney     Int
-  fundedMoney   Int
-  deadlineDate  DateTime
-  CreatedAt     DateTime
-  UpdatedAt     DateTime
-  userId        Int
-  user          User      @relation(fields: [userId], references: [id])
-  photos        Photo[]
-  joinedUsers   JoinedUser[]
-  region Region
-}
-
-model Photo {
-  id        Int    @id @default(autoincrement())
-  FundingId Int
-  url       String @db.VarChar(255)
-  funding   Funding @relation(fields: [FundingId], references: [id])
-}
-
-model JoinedUser {
-  id         Int      @id @default(autoincrement())
-  FundingsId Int
-  UserId     Int
-  fundedMoney Int 
-  CreatedAt  DateTime @db.DateTime(6)
-  UpdatedAt  DateTime @db.DateTime(6)
-  funding    Funding  @relation(fields: [FundingsId], references: [id])
-  user       User     @relation(fields: [UserId], references: [id])
-}
-
 enum Region {
   SEOUL
   INCHEON_GYEONGGI
   GYEONGSANG
   CHUNGCHEONG
-  GANGWON
   JEOLLA
   JEJU
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  userId    String   @map("user_id") @db.VarChar(100)
+  password  String   @db.VarChar(100)
+  region    Region?
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(6)
+
+  fundings     Funding[]
+  userFundings UserFunding[]
+  comments     Comment[]
+
+  @@map("users")
+}
+
+model Magazine {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(255)
+  body      String   @db.VarChar(255)
+  photo     String   @db.VarChar(255)
+  link      String   @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(6)
+
+  @@map("megazines")
+}
+
+model UserFunding {
+  id              Int      @id @default(autoincrement())
+  userId          Int      @map("user_id")
+  fundingId       Int      @map("funding_id")
+  userFundedMoney BigInt   @map("user_funded_money")
+  createdAt       DateTime @default(now()) @map("created_at") @db.DateTime(6)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.DateTime(6)
+
+  user    User    @relation(fields: [userId], references: [id])
+  funding Funding @relation(fields: [fundingId], references: [id])
+
+  @@map("user_fundings")
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String   @db.VarChar(100)
+  userId    Int      @map("user_id")
+  fundingId Int      @map("funding_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(6)
+
+  user    User    @relation(fields: [userId], references: [id])
+  funding Funding @relation(fields: [fundingId], references: [id])
+
+  @@map("comments")
+}
+
+model Funding {
+  id               Int      @id @default(autoincrement())
+  userId           Int      @map("user_id")
+  title            String   @db.VarChar(10)
+  description      String   @db.VarChar(500)
+  goalMoney        BigInt   @map("goal_money")
+  fundedMoney      Int      @map("funded_money")
+  deadlineDate     DateTime @map("deadline_date") @db.DateTime(6)
+  photoUrl         String   @map("photo_url") @db.VarChar(255)
+  region           Region
+  detailAddress    String   @map("detail_address") @db.VarChar(30)
+  completeDueDate  DateTime @map("complete_due_date") @db.DateTime(6)
+  privacyAgreement Boolean  @map("privacy_agreement")
+  status           Boolean  @default(true)
+  createdAt        DateTime @default(now()) @map("created_at") @db.DateTime(6)
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.DateTime(6)
+
+  user         User          @relation(fields: [userId], references: [id])
+  userFundings UserFunding[]
+  comments     Comment[]
+
+  @@map("fundings")
 }
