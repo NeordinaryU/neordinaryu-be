@@ -1,10 +1,7 @@
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+import { getAllMagazines } from "../repositories/magazine.repository";
 
 export async function getMagazineList() {
-  const magazines = await prisma.magazine.findMany({
-    orderBy: { createdAt: "desc" }
-  });
+  const magazines = await getAllMagazines();
   // photo → photoUrl로 변환
   return magazines.map(m => ({
     id: m.id,
