@@ -8,10 +8,69 @@ paths:
     get:
       summary: Hello World
       responses:
-        '200':
+        "200":
           description: 성공
           content:
             text/plain:
               schema:
                 type: string
                 example: Hello World!
+  /oauth2/login/google:
+    get:
+      summary: Google OAuth2 로그인 시작
+      description: Google 로그인 창으로 리디렉션됩니다.
+      tags:
+        - Auth
+      responses:
+        "302":
+          description: 구글 로그인 페이지로 리디렉션
+
+  /oauth2/callback/google:
+    get:
+      summary: Google OAuth2 콜백
+      description: Google 로그인 후 인증 정보를 처리하는 콜백 URL입니다.
+      tags:
+        - Auth
+      responses:
+        "302":
+          description: 로그인 성공 시 리디렉션
+        "401":
+          description: 로그인 실패
+
+  /oauth2/me:
+    get:
+      summary: 로그인된 사용자 정보 조회
+      description: 세션을 기반으로 로그인된 사용자의 정보를 반환합니다.
+      tags:
+        - Auth
+      responses:
+        "200":
+          description: 로그인된 사용자 정보
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: 로그인되지 않은 상태
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        email:
+          type: string
+          example: example@gmail.com
+        name:
+          type: string
+          example: 홍길동
