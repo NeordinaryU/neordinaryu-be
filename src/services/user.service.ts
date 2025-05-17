@@ -28,23 +28,7 @@ export const registerUser = async (data: {
     throw err;
   }
 };
-export const loginUser = async (userId: string, password: string) => {
-  const user = await findUserByUserId(userId);
-  if (!user) {
-    throw new Error("존재하지 않는 사용자입니다.");
-  }
 
-  const valid = await comparePassword(password, user.password);
-  if (!valid) {
-    throw new Error("비밀번호가 일치하지 않습니다.");
-  }
-
-  // 토큰 발급을 원할 경우 여기에 추가
-  return {
-    userId: user.userId,
-    region: user.region,
-  };
-};
 export const changeUserRegion = async (userId: string, region: Region) => {
   try {
     const user = await updateUserRegion(userId, region);

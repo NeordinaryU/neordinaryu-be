@@ -27,6 +27,10 @@ const findUserByUserIdString = async (userIdString: string): Promise<PrismaAppUs
 export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
+  user?: {
+    userId: string;
+    region: string | null;
+  };
 }
 
 /**
@@ -59,7 +63,14 @@ export const loginService = async (
 
   await saveRefreshToken(user.id, refreshToken, expiresAt);
 
-  return { accessToken, refreshToken };
+  return { 
+    accessToken, 
+    refreshToken,
+    user: {
+      userId: user.userId,
+      region: user.region
+    }
+  };
 };
 
 /**

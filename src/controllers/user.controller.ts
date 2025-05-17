@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { registerUser } from "../services/user.service";
-import { loginUser, changeUserRegion } from "../services/user.service";
+import { changeUserRegion } from "../services/user.service";
 import { Region } from "@prisma/client";
 
 export const createUserHandler: RequestHandler = async (req, res, next) => {
@@ -12,23 +12,6 @@ export const createUserHandler: RequestHandler = async (req, res, next) => {
       userId: user.userId,
       region: user.region,
     });
-  } catch (err) {
-    next(err);
-  }
-};
-
-export const loginHandler: RequestHandler = async (req, res, next) => {
-  try {
-    const { userId: userId, password } = req.body;
-
-    if (!userId || !password) {
-      res.sendError(400, "userId와 password는 필수입니다.");
-      return;
-    }
-
-    const user = await loginUser(userId, password);
-
-    res.sendSuccess(200, "로그인 성공", user);
   } catch (err) {
     next(err);
   }

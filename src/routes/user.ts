@@ -1,15 +1,15 @@
-import { Router } from "express";
+import { Router, RequestHandler } from "express";
 import {
   createUserHandler,
-  loginHandler,
   updateRegionHandler,
 } from "../controllers/user.controller";
 import { getUserFundingsHandler } from "../controllers/funding.controller";
+import { loginController } from "../controllers/auth.controller";
 
 const router = Router();
 
 router.post("/", createUserHandler);
-router.post("/login", loginHandler);
+router.post("/login", loginController as RequestHandler);
 router.patch("/:userId/region", updateRegionHandler);
 
 // 사용자의 펀딩 목록 조회
