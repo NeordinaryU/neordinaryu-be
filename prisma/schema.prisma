@@ -21,7 +21,7 @@ enum Region {
 
 model User {
   id        Int      @id @default(autoincrement())
-  userId    String   @map("user_id") @db.VarChar(100)
+  userId    String   @unique @map("user_id") @db.VarChar(100)
   password  String   @db.VarChar(100)
   region    Region?
   createdAt DateTime @default(now()) @map("created_at") @db.DateTime(6)
