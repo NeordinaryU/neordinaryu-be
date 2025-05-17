@@ -61,10 +61,13 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
  * 반드시 인증된 사용자만 접근을 허용하는 미들웨어입니다.
  * authenticateToken 미들웨어가 먼저 실행되어 req.user가 설정된 것을 전제로 합니다.
  */
-export const requireAuth = (req: Request, res: Response, next: NextFunction) => {
+export const requireAuth = (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
-        return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Authentication required. No user data found on request.' });
+        // 응답을 보내고 함수를 종료합니다.
+        res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Authentication required. No user data found on request.' });
+        return; // 여기서 함수 실행이 종료됨을 명시
     }
+    // req.user가 있으면 다음 미들웨어로 진행합니다.
     next();
 };
 
@@ -73,14 +76,16 @@ export const requireAuth = (req: Request, res: Response, next: NextFunction) => 
  * Express.User 타입에 'role' 필드가 추가되어 있다고 가정합니다.
  */
 export const authorizeRole = (requiredRole: string) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
-        return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Authentication required.' });
+        res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Authentication required.' });
+        return;
     }
     // Express.User 타입에 role이 실제로 있는지 확인 필요
     const userRole = (req.user as any).role; // 타입 단언은 실제 타입 정의에 맞게 수정 필요
     if (userRole !== requiredRole) {
-      return res.status(StatusCodes.FORBIDDEN).json({ message: `Forbidden: Role \"${requiredRole}\" required.` });
+      res.status(StatusCodes.FORBIDDEN).json({ message: `Forbidden: Role \"${requiredRole}\" required.` });
+      return;
     }
     next();
   };

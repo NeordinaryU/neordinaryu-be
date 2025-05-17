@@ -53,19 +53,3 @@ export const logoutController = async (req: Request, res: Response, next: NextFu
     next(error);
   }
 };
-
-/*
-// 모든 기기에서 로그아웃 (필요시 사용)
-import { logoutFromAllDevicesService } from '../services/auth.service';
-export const logoutFromAllDevicesController = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    if (!req.user) { 
-      return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Authentication required' });
-    }
-    await logoutFromAllDevicesService(req.user.id); // req.user.id는 PK
-    return res.status(StatusCodes.OK).json({ message: 'Successfully logged out from all devices' });
-  } catch (error) {
-    next(error);
-  }
-};
-*/ 

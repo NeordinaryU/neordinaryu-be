@@ -4,12 +4,34 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET_KEY as string;
-const ACCESS_TOKEN_EXPIRES_IN = process.env.ACCESS_TOKEN_EXPIRES_IN || '15m';
-const REFRESH_TOKEN_EXPIRES_IN = process.env.REFRESH_TOKEN_EXPIRES_IN || '7d';
 
 if (!JWT_SECRET) {
   throw new Error('JWT_SECRET_KEY is not defined in the environment variables.');
 }
+
+// Helper function to parse expiry string (e.g., "15m", "7d", "3600") to seconds
+const parseExpiryToSeconds = (expiryString: string): number => {
+  const unit = expiryString.charAt(expiryString.length - 1);
+  let value = parseInt(expiryString.slice(0, -1));
+
+  if (isNaN(value)) { // 단위가 없는 숫자 문자열 (예: "900")인지 확인
+    value = parseInt(expiryString);
+    if (!isNaN(value)) return value; // 숫자면 초로 간주
+    throw new Error(`Invalid expiresIn format: ${expiryString}. Expected like '15m', '7d', or seconds as a number string.`);
+  }
+
+  switch (unit) {
+    case 's': return value;
+    case 'm': return value * 60;
+    case 'h': return value * 60 * 60;
+    case 'd': return value * 24 * 60 * 60;
+    default:
+      throw new Error(`Invalid unit '${unit}' in expiresIn format: ${expiryString}. Supported units: s, m, h, d.`);
+  }
+};
+
+const ACCESS_TOKEN_EXPIRES_SECONDS = parseExpiryToSeconds(process.env.ACCESS_TOKEN_EXPIRES_IN || '900s'); // Default 15m
+const REFRESH_TOKEN_EXPIRES_SECONDS = parseExpiryToSeconds(process.env.REFRESH_TOKEN_EXPIRES_IN || '7d');   // Default 7d
 
 export interface UserPayload {
   id: number; 
@@ -17,11 +39,11 @@ export interface UserPayload {
 }
 
 export const generateAccessToken = (user: UserPayload): string => {
-  return jwt.sign(user, JWT_SECRET, { expiresIn: String(ACCESS_TOKEN_EXPIRES_IN) });
+  return jwt.sign(user, JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRES_SECONDS });
 };
 
 export const generateRefreshToken = (user: UserPayload): string => {
-  return jwt.sign(user, JWT_SECRET, { expiresIn: String(REFRESH_TOKEN_EXPIRES_IN) });
+  return jwt.sign(user, JWT_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRES_SECONDS });
 };
 
 export const verifyToken = (token: string): UserPayload | null => {
