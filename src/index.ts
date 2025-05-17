@@ -12,7 +12,7 @@ import { authenticateToken } from "./utils/auth.middleware";
 import cookieParser from 'cookie-parser';
 import { bigintMiddleware, bigintJsonSerializer } from "./utils/bigint.util";
 import { snakeToCamelMiddleware } from "./utils/case-converter.util";
-
+import magazineRouter from "./routes/magazine";
 dotenv.config();
 
 // BigInt 값을 JSON 직렬화할 수 있도록 설정
@@ -46,7 +46,7 @@ app.use("/auth", authRouter);
 app.use("/oauth2", oauthRouter);
 app.use("/users", userRouter);
 app.use("/funding", fundingRouter);
-
+app.use("/magazines", magazineRouter);
 // 글로벌 에러 핸들러 - 모든 라우트 정의 후에 추가
 app.use(errorHandler);
 
