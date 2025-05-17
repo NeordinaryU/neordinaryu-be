@@ -1,3 +1,4 @@
+// filepath: /Users/chowon/Projects/neordinaryu-be/src/repositories/user.repository.ts
 import { PrismaClient, User, Region } from "@prisma/client";
 export const prisma = new PrismaClient({ log: ["query"] });
 
@@ -21,8 +22,18 @@ export const findUserByUserId = async (userId: string) => {
 };
 
 export const updateUserRegion = async (userId: string, region: Region) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      userId: userId
+    }
+  });
+  
+  if (!user) {
+    throw new Error('User not found');
+  }
+  
   return await prisma.user.update({
-    where: { userId },
+    where: { id: user.id },
     data: { region },
   });
 };
