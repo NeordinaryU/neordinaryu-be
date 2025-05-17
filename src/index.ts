@@ -7,6 +7,7 @@ import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
 import dotenv from "dotenv";
 import { responseHandler, errorHandler } from "./utils/response.util";
+import magazineRouter from "./routes/magazine.route";
 dotenv.config();
 
 const app = express();
@@ -26,6 +27,7 @@ app.get('/', (_req, res) => {
 app.use("/oauth2", oauthRouter);
 app.use("/users", userRouter);
 app.use("/funding", fundingRouter);
+app.use("/magazines", magazineRouter);
 
 // 글로벌 에러 핸들러 - 모든 라우트 정의 후에 추가
 app.use(errorHandler);
