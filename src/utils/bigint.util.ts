@@ -1,6 +1,6 @@
 /**
  * BigInt 값을 숫자로 변환하는 JSON 직렬화 처리기
- * 경고: Number.MAX_SAFE_INTEGER를 초과하는 BigInt 값은 정밀도를 잃을 수 있습니다.
+ * BigInt 값을 숫자로 변환하여 정밀도 손실을 방지합니다.
  */
 export const bigintJsonSerializer = () => {
   // JSON.stringify가 BigInt 값을 처리할 수 있도록 재정의
@@ -24,14 +24,14 @@ export const bigintJsonSerializer = () => {
 
 /**
  * Express 응답에서 BigInt를 숫자로 변환하는 미들웨어
- * 경고: Number.MAX_SAFE_INTEGER를 초과하는 BigInt 값은 정밀도를 잃을 수 있습니다.
+ * BigInt 값을 숫자로 변환하여 정밀도 손실을 방지합니다.
  */
 export const bigintMiddleware = (req: any, res: any, next: any) => {
   const originalJson = res.json;
   
   res.json = function(body: any) {
     // 여기의 JSON.stringify는 bigintJsonSerializer에 의해 패치된 전역 JSON.stringify를 사용하거나,
-    // 자체 replacer를 통해 BigInt를 Number로 변환합니다.
+    // 자체 replacer를 통해 BigInt를 숫자로 변환합니다.
     body = JSON.parse(JSON.stringify(body, (key, value) => 
       typeof value === 'bigint' ? Number(value) : value // BigInt를 Number로 변환
     ));
