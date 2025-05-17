@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { registerUser } from "../services/user.service";
 import { loginUser, changeUserRegion } from "../services/user.service";
-import { Region } from "../generated/prisma";
+import { Region } from "@prisma/client";
 
 export const createUserHandler: RequestHandler = async (req, res, next) => {
   try {
@@ -10,8 +10,6 @@ export const createUserHandler: RequestHandler = async (req, res, next) => {
     const user = await registerUser({ userId, password, region });
     res.sendSuccess(201, "회원가입 성공", {
       userId: user.userId,
-      name: user.name,
-      email: user.email,
       region: user.region,
     });
   } catch (err) {
