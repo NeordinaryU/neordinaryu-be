@@ -90,6 +90,8 @@ export const getFundingById = async (id: number): Promise<any> => {
     throw new Error("펀딩을 찾을 수 없습니다.");
   }
 
+  const funderCount = funding.userFundings ? funding.userFundings.length : 0;
+
   return {
     fundingId: funding.id,
     title: funding.title,
@@ -99,13 +101,17 @@ export const getFundingById = async (id: number): Promise<any> => {
     detailAddress: funding.detailAddress,
     goalMoney: funding.goalMoney,
     fundedMoney: funding.fundedMoney,
-    achievementRate: funding.goalMoney > 0 ? Math.floor((Number(funding.fundedMoney) * 100) / Number(funding.goalMoney)) : 0,
+    achievementRate: funding.goalMoney > 0
+      ? Math.floor((Number(funding.fundedMoney) * 100) / Number(funding.goalMoney))
+      : 0,
+    funderCount,
     deadlineDate: funding.deadlineDate,
     completeDueDate: funding.completeDueDate,
     isOpen: funding.status, // status를 isOpen으로 변경
+    isProlongation: funding.isProlongation,
     createdAt: funding.createdAt,
     updatedAt: funding.updatedAt,
-    userId: funding.userId, // userId 추가
+    userId: funding.userId,
   };
 };
 
@@ -126,6 +132,7 @@ export const getFundingsByUserId = async (userId: number): Promise<any[]> => {
     deadlineDate: funding.deadlineDate,
     completeDueDate: funding.completeDueDate,
     isOpen: funding.status, // status를 isOpen으로 변경
+    isProlongation: funding.isProlongation,
     createdAt: funding.createdAt,
     updatedAt: funding.updatedAt,
     user: funding.user,

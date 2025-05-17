@@ -141,7 +141,7 @@ export const updateFundingDeadline = async (
 ): Promise<Funding> => {
   const funding = await prisma.funding.update({
     where: { id },
-    data: { deadlineDate },
+    data: { deadlineDate, isProlongation: true },
   });
   return funding;
 };
