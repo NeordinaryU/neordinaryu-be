@@ -9,7 +9,7 @@
     "postbuild": "cp package.json dist/ && mkdir -p dist/swagger && cp -r src/swagger/* dist/swagger/",
     "start": "node dist/index.cjs",
     "api-docs": "swagger-cli bundle ./src/swagger/openapi.yaml --outfile build/swagger.yaml --type yaml",
-    "dev": "ts-node src/index.ts"
+    "dev": "ts-node --files src/index.ts"
   },
   "repository": {
     "type": "git",
