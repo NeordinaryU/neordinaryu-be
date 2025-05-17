@@ -287,7 +287,7 @@ export const donateFundingController = async (
   next: NextFunction
 ): Promise<void> => { // 반환 타입 명시
   try {
-    const fundingId = parseInt(req.params.id);
+    const fundingId = parseInt(req.params.fundingId);
     const userId = req.user!.id; // authenticateToken 미들웨어에서 설정된 사용자 ID
     const { userFundedMoney } = req.body;
 
@@ -308,7 +308,7 @@ export const donateFundingController = async (
     );
     res.sendSuccess(
       StatusCodes.OK,
-      "성공적으로 후원하였습니다.",
+      "후원이 성공적으로 완료되었습니다.",
       result
     );
     // 성공 시에도 명시적으로 반환하지 않음 (sendSuccess가 응답을 종료)

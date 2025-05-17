@@ -201,10 +201,10 @@ export const donateFunding = async (
   }
   const result = await fundingDonate(fundingId, userId, userFundedMoney);
   return {
-    funding_id: result.funding.id,
-    user_id: userId,
-    new_user_funded_money: result.userFunding.userFundedMoney,
-    updated_funding_total: result.funding.fundedMoney,
+    fundingId: result.funding.id,
+    userId: userId,
+    newUserFundedMoney: result.userFunding.userFundedMoney,
+    updatedFundingTotal: result.funding.fundedMoney,
   };
 };
 

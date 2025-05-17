@@ -35,6 +35,6 @@ router.patch("/:fundingId/prolongation", authenticateToken, prolongFundingHandle
 router.patch("/:fundingId/close", authenticateToken, closeFundingHandler);
 
 // 후원하기
-router.post("/:id/donate", authenticateToken, donateFundingController);
+router.patch("/:fundingId/donate", authenticateToken, donateFundingController);
 
 export default router;
