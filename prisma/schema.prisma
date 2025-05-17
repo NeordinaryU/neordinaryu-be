@@ -83,7 +83,7 @@ model Funding {
   title            String   @db.VarChar(10)
   description      String   @db.VarChar(300)
   goalMoney        BigInt   @map("goal_money")
-  fundedMoney      Int      @map("funded_money")
+  fundedMoney      BigInt   @default(0) @map("funded_money")
   deadlineDate     DateTime @map("deadline_date") @db.DateTime(6)
   photoUrl         String   @map("photo_url") @db.VarChar(255)
   region           Region

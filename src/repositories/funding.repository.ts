@@ -200,12 +200,23 @@ export const fundingDonate = async (
     }
 
     // 3. 펀딩 총액 업데이트
+    // 현재 펀딩 정보 조회
+    const currentFunding = await tx.funding.findUnique({
+      where: { id: fundingId },
+      select: { fundedMoney: true }
+    });
+    
+    if (!currentFunding) {
+      throw new Error("펀딩을 찾을 수 없습니다.");
+    }
+    
+    // 새로운 총액 계산 (BigInt 연산)
+    const newFundedMoney = currentFunding.fundedMoney + userFundedMoney;
+    
     const funding = await tx.funding.update({
       where: { id: fundingId },
       data: {
-        fundedMoney: {
-          increment: Number(userFundedMoney),
-        },
+        fundedMoney: newFundedMoney,
       },
     });
 
