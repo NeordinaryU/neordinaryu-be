@@ -35,30 +35,60 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.PORT }}
           script: |
+            echo "===== 배포 시작 ====="
             cd ~/neordinaryu-be
-            git pull
-            npm ci
-            npx prisma generate
-            npx prisma migrate deploy
-            npm run build
+            
+            echo "Git 저장소 상태 확인"
+            git status
+            
+            echo "최신 코드 가져오기"
+            git fetch origin main
+            
+            echo "변경사항 확인"
+            git diff HEAD origin/main --name-status
+            
+            echo "코드 적용하기"
+            git pull origin main || { echo "Git pull 실패"; exit 1; }
+            
+            echo "종속성 설치"
+            npm ci || { echo "npm ci 실패"; exit 1; }
+            
+            echo "Prisma 생성"
+            npx prisma generate || { echo "prisma generate 실패"; exit 1; }
+            
+            echo "DB 마이그레이션"
+            npx prisma migrate deploy || { echo "prisma migrate 실패"; exit 1; }
+            
+            echo "애플리케이션 빌드"
+            npm run build || { echo "빌드 실패"; exit 1; }
 
-            # 정적 파일 처리를 위한 폴더 생성 확인
+            echo "정적 파일 처리"
             mkdir -p dist/swagger
-
-            # Swagger 파일 복사
-            cp -r src/swagger/* dist/swagger/
+            cp -r src/swagger/* dist/swagger/ || { echo "Swagger 파일 복사 실패"; exit 1; }
 
             # PM2가 설치되어 있지 않으면 설치
             if ! command -v pm2 &> /dev/null; then
-              echo "PM2가 설치되어 있지 않아 설치합니다."
-              npm install -g pm2
+              echo "PM2 설치"
+              npm install -g pm2 || { echo "PM2 설치 실패"; exit 1; }
             fi
 
+            echo "PM2 프로세스 상태 확인"
+            pm2 list
+            
             # 실행 중인 인스턴스가 있는지 확인하고 중지
             if pm2 list | grep -q "neordinaryu-be"; then
+              echo "기존 앱 중지 및 삭제"
               pm2 stop neordinaryu-be
               pm2 delete neordinaryu-be
             fi
             
-            # 애플리케이션 새로 시작
-            pm2 start npm --name "neordinaryu-be" -- start
+            echo "새 애플리케이션 시작"
+            pm2 start npm --name "neordinaryu-be" -- start || { echo "애플리케이션 시작 실패"; exit 1; }
+            
+            echo "PM2 프로세스 최종 상태"
+            pm2 list
+            
+            echo "PM2 저장 (재부팅시 자동 시작)"
+            pm2 save
+            
+            echo "===== 배포 완료 ====="
