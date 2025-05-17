@@ -1,10 +1,13 @@
 import { RequestHandler } from "express";
 import { Region } from "@prisma/client";
+import { NextFunction, Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
 import {
   createFundingService,
   getAllFundings,
   getFundingById,
   getFundingsByUserId,
+  getParticipatedFundingsByUserIdService,
   prolongFunding,
   closeFunding,
   donateFunding,
@@ -276,62 +279,59 @@ export const closeFundingHandler: RequestHandler = async (req, res, next) => {
   }
 };
 
-// 7. 후원하기
-export const donateFundingHandler: RequestHandler = async (req, res, next) => {
+// 후원하기
+export const donateFundingController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => { // 반환 타입 명시
   try {
-    const { fundingId } = req.params;
+    const fundingId = parseInt(req.params.id);
+    const userId = req.user!.id; // authenticateToken 미들웨어에서 설정된 사용자 ID
     const { userFundedMoney } = req.body;
-    const userId = req.user?.id;
-    
-    // 인증 검증
-    if (!userId) {
-      res.sendError(401, "인증이 필요한 기능입니다.");
-      return;
+
+    if (isNaN(fundingId)) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: "펀딩 ID가 유효하지 않습니다." });
+      return; // void 반환을 위해 return 추가
     }
-    
-    // 후원 금액 검증
-    if (!userFundedMoney) {
-      res.sendError(400, "후원 금액(userFundedMoney)은 필수입니다.");
-      return;
+
+    if (userFundedMoney === undefined || userFundedMoney === null) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: "후원 금액을 입력해주세요." });
+      return; // void 반환을 위해 return 추가
     }
-    
-    if (isNaN(Number(userFundedMoney)) || Number(userFundedMoney) <= 0) {
-      res.sendError(400, "후원 금액은 양수여야 합니다.");
-      return;
-    }
-    
-    // ID 유효성 검증
-    if (!fundingId || isNaN(Number(fundingId))) {
-      res.sendError(400, "유효한 펀딩 ID가 필요합니다.");
-      return;
-    }
-    
-    // 펀딩 존재 여부 확인
-    const funding = await getFundingById(Number(fundingId));
-    
-    if (!funding) {
-      res.sendError(404, "해당 ID의 펀딩을 찾을 수 없습니다.");
-      return;
-    }
-    
-    // 자신의 펀딩에 후원하는 것 방지
-    if (funding.userId === userId) {
-      res.sendError(400, "자신이 개설한 펀딩에는 후원할 수 없습니다.");
-      return;
-    }
-    
+
     const result = await donateFunding(
-      Number(fundingId),
+      fundingId,
       userId,
       BigInt(userFundedMoney)
     );
-    
-    res.sendSuccess(200, "후원이 성공적으로 완료되었습니다.", result);
-  } catch (err: any) {
-    if (err.message) {
-      res.sendError(400, err.message);
-      return;
-    }
-    next(err);
+    res.sendSuccess(
+      StatusCodes.OK,
+      "성공적으로 후원하였습니다.",
+      result
+    );
+    // 성공 시에도 명시적으로 반환하지 않음 (sendSuccess가 응답을 종료)
+  } catch (error) {
+    next(error);
+  }
+};
+
+// 내가 참여한 펀딩 목록 조회
+export const getParticipatedFundingsController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => { // 반환 타입 명시
+  try {
+    const userId = req.user!.id; // authenticateToken 미들웨어에서 설정된 사용자 ID
+    const fundings = await getParticipatedFundingsByUserIdService(userId);
+    res.sendSuccess(
+      StatusCodes.OK,
+      "내가 참여한 펀딩 목록을 성공적으로 불러왔습니다.",
+      fundings
+    );
+    // 성공 시에도 명시적으로 반환하지 않음 (sendSuccess가 응답을 종료)
+  } catch (error) {
+    next(error);
   }
 };

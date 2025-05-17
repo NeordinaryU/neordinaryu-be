@@ -1,4 +1,4 @@
-import { Router } from "express";
+import express from "express";
 import {
   createFundingHandler,
   getFundingsHandler,
@@ -6,31 +6,35 @@ import {
   getUserFundingsHandler,
   prolongFundingHandler,
   closeFundingHandler,
-  donateFundingHandler,
+  donateFundingController,
+  getParticipatedFundingsController,
 } from "../controllers/funding.controller";
-import { requireAuth } from "../utils/auth.middleware";
+import { authenticateToken } from "../utils/auth.middleware";
 
-const router = Router();
+const router = express.Router();
 
-// 1. 펀딩 글 작성 - 인증 필요
-router.post("/", requireAuth, createFundingHandler);
+// 펀딩 생성
+router.post("/", authenticateToken, createFundingHandler);
 
-// 2. 펀딩 목록 조회 - 인증 없이 접근 가능
+// 펀딩 목록 조회
 router.get("/", getFundingsHandler);
 
-// 3. 펀딩 글 상세 조회 - 인증 없이 접근 가능
+// 내가 참여한 펀딩 목록 조회 (/:fundingId 보다 먼저 정의)
+router.get("/participated", authenticateToken, getParticipatedFundingsController);
+
+// 내가 생성한 펀딩 목록 조회
+router.get("/my", authenticateToken, getUserFundingsHandler);
+
+// 펀딩 상세 조회 (구체적인 경로들 뒤로 이동)
 router.get("/:fundingId", getFundingDetailsHandler);
 
-// 4. 특정 사용자 작성 펀딩 글 조회 (사용자 라우트에 정의)
-// router.get("/users/:userId/fundings", getUserFundingsHandler);
+// 펀딩 연장
+router.patch("/:fundingId/prolongation", authenticateToken, prolongFundingHandler);
 
-// 5. 펀딩 연장하기 - 인증 필요
-router.patch("/:funding/prolongation", requireAuth, prolongFundingHandler);
+// 펀딩 닫기
+router.patch("/:fundingId/close", authenticateToken, closeFundingHandler);
 
-// 6. 펀딩 닫기 - 인증 필요
-router.patch("/:fundingId/close", requireAuth, closeFundingHandler);
+// 후원하기
+router.post("/:id/donate", authenticateToken, donateFundingController);
 
-// 7. 후원하기 - 인증 필요
-router.patch("/:fundingId/donate", requireAuth, donateFundingHandler);
-
-export default router; 
+export default router;

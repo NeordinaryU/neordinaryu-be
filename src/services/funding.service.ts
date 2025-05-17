@@ -7,6 +7,7 @@ import {
   updateFundingDeadline,
   updateFundingStatus,
   fundingDonate,
+  findParticipatedFundingsByUserId,
 } from "../repositories/funding.repository";
 
 // 펀딩 생성
@@ -204,4 +205,23 @@ export const donateFunding = async (
     new_user_funded_money: result.userFunding.userFundedMoney,
     updated_funding_total: result.funding.fundedMoney,
   };
-}; 
+};
+
+// 사용자가 참여한 펀딩 목록 조회
+export const getParticipatedFundingsByUserIdService = async (userId: number): Promise<any[]> => {
+  const fundings = await findParticipatedFundingsByUserId(userId);
+  
+  // 응답 데이터 포맷팅
+  return fundings.map(funding => ({
+    fundingId: funding.id,
+    title: funding.title,
+    photoUrl: funding.photoUrl,
+    region: funding.region,
+    detailAddress: funding.detailAddress,
+    goalMoney: funding.goalMoney,
+    fundedMoney: funding.fundedMoney,
+    deadlineDate: funding.deadlineDate,
+    completeDueDate: funding.completeDueDate,
+    userFundedMoney: funding.userFundedMoney, // 사용자가 후원한 금액 추가
+  }));
+};

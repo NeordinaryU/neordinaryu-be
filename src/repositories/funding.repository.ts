@@ -139,3 +139,21 @@ export const fundingDonate = async (
     return { funding, userFunding };
   });
 };
+
+// 사용자가 참여한 펀딩 목록 조회
+export const findParticipatedFundingsByUserId = async (userId: number): Promise<any[]> => {
+  const userFundings = await prisma.userFunding.findMany({
+    where: { userId },
+    include: {
+      funding: true, // Funding 정보 포함
+    },
+    orderBy: {
+      createdAt: 'desc', // 최신순으로 정렬하거나 필요에 따라 변경
+    },
+  });
+
+  return userFundings.map(uf => ({
+    ...uf.funding, // Funding의 모든 필드
+    userFundedMoney: uf.userFundedMoney, // 사용자가 해당 펀딩에 후원한 금액
+  }));
+};
