@@ -8,10 +8,239 @@ paths:
     get:
       summary: Hello World
       responses:
-        '200':
+        "200":
           description: 성공
           content:
             text/plain:
               schema:
                 type: string
                 example: Hello World!
+  /users:
+    post:
+      summary: 회원가입
+      description: 신규 유저를 등록합니다.
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserSignupRequest"
+      responses:
+        "201":
+          description: 회원가입 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserSignupResponse"
+        "400":
+          description: 이메일 중복 또는 유효하지 않은 요청
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/signErrorResponse"
+  /users/login:
+    post:
+      summary: 로그인
+      description: 사용자 아이디(name)와 비밀번호로 로그인합니다.
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: 로그인 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginSuccessResponse"
+        "400":
+          description: 로그인 실패 (잘못된 아이디 또는 비밀번호)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /users/{userId}/region:
+    patch:
+      summary: 유저 지역 수정
+      description: userId에 해당하는 유저의 region 값을 수정합니다.
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          description: 유저의 아이디 (userId)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateRegionRequest"
+      responses:
+        "200":
+          description: 지역 변경 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateRegionResponse"
+        "400":
+          description: 잘못된 요청 (유효하지 않은 ENUM 값)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/userPatchErrorResponse"
+        "404":
+          description: 해당 userId를 가진 유저를 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/userCantFindErrorResponse"
+
+components:
+  schemas:
+    UserSignupRequest:
+      type: object
+      required:
+        - userId
+        - name
+        - email
+        - password
+        - region
+      properties:
+        userId:
+          type: string
+          example: yee2know
+        name:
+          type: string
+          example: 원종훈
+        email:
+          type: string
+          format: email
+          example: wj1101010@gmail.com
+        password:
+          type: string
+          example: qwertyu
+        region:
+          type: string
+          enum: [SEOUL, BUSAN, DAEGU, INCHEON]
+          example: SEOUL
+
+    UserSignupResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 회원가입 성공
+        user:
+          type: object
+          properties:
+            userId:
+              type: string
+              example: yee2know
+            name:
+              type: string
+              example: 원종훈
+            email:
+              type: string
+              example: wj1101010@gmail.com
+            region:
+              type: string
+              example: SEOUL
+    signErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 이미 사용 중인 이메일입니다.
+    LoginRequest:
+      type: object
+      required:
+        - name
+        - password
+      properties:
+        name:
+          type: string
+          description: 아이디 (userId)
+          example: yee2know
+        password:
+          type: string
+          description: 비밀번호
+          example: qwertyu
+
+    LoginSuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 로그인 성공
+        user:
+          type: object
+          properties:
+            userId:
+              type: string
+              example: yee2know
+            name:
+              type: string
+              example: 원종훈
+            email:
+              type: string
+              example: wj1101010@gmail.com
+            region:
+              type: string
+              example: SEOUL
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 비밀번호가 일치하지 않습니다.
+    UpdateRegionRequest:
+      type: object
+      required:
+        - region
+      properties:
+        region:
+          type: string
+          enum: [SEOUL, BUSAN, DAEGU, INCHEON]
+          example: BUSAN
+
+    UpdateRegionResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 지역이 변경되었습니다.
+        user:
+          type: object
+          properties:
+            userId:
+              type: string
+              example: yee2know
+            email:
+              type: string
+              example: wj1101010@gmail.com
+            region:
+              type: string
+              example: BUSAN
+
+    userPatchErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "region 값은 다음 중 하나여야 합니다: SEOUL, BUSAN, DAEGU, INCHEON"
+    userCantFindErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "사용자를 찾을 수 없습니다."

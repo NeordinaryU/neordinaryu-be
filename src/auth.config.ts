@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import { PrismaClient } from "./generated/prisma";
+import { PrismaClient, Region } from "./generated/prisma";
 import { Profile } from "passport-google-oauth20";
 
 dotenv.config();
@@ -26,24 +26,34 @@ interface GoogleUser {
   name: string;
 }
 
-const googleVerify = async (profile: Profile): Promise<GoogleUser> => {
+export const googleVerify = async (profile: Profile): Promise<GoogleUser> => {
   const email: string | undefined = profile.emails?.[0]?.value;
+  const name: string = profile.displayName;
+
   if (!email) {
-    throw new Error(`profile.email was not found: ${profile}`);
+    throw new Error(`profile.email was not found: ${JSON.stringify(profile)}`);
   }
 
-  const user = await prisma.user.findFirst({ where: { email } });
-  if (user !== null) {
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (user) {
     return { id: user.id, email: user.email, name: user.name };
   }
 
   const created = await prisma.user.create({
     data: {
+      userId: `google_${Date.now()}`, // ✅ 랜덤 ID 대체
+      name,
       email,
-      name: profile.displayName,
-      password: null,
+      password: "", // ✅ 소셜 로그인이라 비워둠
+      status: "ACTIVE",
+      CreatedAt: new Date(),
+      region: Region.SEOUL, // ✅ 기본 region (임시 할당)
     },
   });
 
-  return { id: created.id, email: created.email, name: created.name };
+  return {
+    id: created.id,
+    email: created.email,
+    name: created.name,
+  };
 };

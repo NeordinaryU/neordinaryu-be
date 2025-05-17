@@ -15,12 +15,27 @@ datasource db {
 }
 
 model User {
-  id            Int      @id @default(autoincrement())
-  email         String   @unique(map: "email") @db.VarChar(255)
-  name          String   @db.VarChar(100)
-  password      String?   @db.VarChar(100)
+  id           Int         @id @default(autoincrement())
+  userId       String      @unique @db.VarChar(100)
+  name         String      @db.VarChar(100)
+  email        String      @unique @db.VarChar(255)
+  password     String      @db.VarChar(100)
+  status       String      // ENUM은 Prisma에서 enum 타입으로 따로 정의 가능
+  inactiveDate DateTime?   @db.DateTime(6)
+  CreatedAt    DateTime    @db.DateTime(6)
+  magazines    Megazine[]
+  joinedUsers  JoinedUser[]
+  fundings     Funding[]
+  region       Region 
+}
 
-  @@map("user")
+model Megazine {
+  id        Int      @id @default(autoincrement())
+  UserId    Int
+  title     String   @db.VarChar(255)
+  body      String
+  CreatedAt DateTime @db.DateTime(6)
+  user      User     @relation(fields: [UserId], references: [id])
 }
 
 model Session {
@@ -30,4 +45,48 @@ model Session {
   expiresAt DateTime @map("expires_at")
 
   @@map("session")
+}
+
+model Funding {
+  id            Int       @id @default(autoincrement())
+  title         String    @db.VarChar(255)
+  description   String?
+  goalMoney     Int
+  fundedMoney   Int
+  deadlineDate  DateTime
+  CreatedAt     DateTime
+  UpdatedAt     DateTime
+  userId        Int
+  user          User      @relation(fields: [userId], references: [id])
+  photos        Photo[]
+  joinedUsers   JoinedUser[]
+  region Region
+}
+
+model Photo {
+  id        Int    @id @default(autoincrement())
+  FundingId Int
+  url       String @db.VarChar(255)
+  funding   Funding @relation(fields: [FundingId], references: [id])
+}
+
+model JoinedUser {
+  id         Int      @id @default(autoincrement())
+  FundingsId Int
+  UserId     Int
+  fundedMoney Int 
+  CreatedAt  DateTime @db.DateTime(6)
+  UpdatedAt  DateTime @db.DateTime(6)
+  funding    Funding  @relation(fields: [FundingsId], references: [id])
+  user       User     @relation(fields: [UserId], references: [id])
+}
+
+enum Region {
+  SEOUL
+  INCHEON_GYEONGGI
+  GYEONGSANG
+  CHUNGCHEONG
+  GANGWON
+  JEOLLA
+  JEJU
 }
