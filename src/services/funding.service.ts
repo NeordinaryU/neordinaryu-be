@@ -8,6 +8,7 @@ import {
   updateFundingStatus,
   fundingDonate,
   findParticipatedFundingsByUserId,
+  findUserFundingByUserIdAndFundingId, // 추가
 } from "../repositories/funding.repository";
 
 // 펀딩 생성
@@ -186,6 +187,12 @@ export const donateFunding = async (
   userId: number,
   userFundedMoney: bigint
 ): Promise<any> => {
+  // 이미 후원한 펀딩인지 확인
+  const existingUserFunding = await findUserFundingByUserIdAndFundingId(userId, fundingId);
+  if (existingUserFunding) {
+    throw new Error("이미 후원한 펀딩입니다.");
+  }
+
   const funding = await findFundingById(fundingId);
   if (!funding) {
     throw new Error("펀딩을 찾을 수 없습니다.");

@@ -268,3 +268,13 @@ export const findParticipatedFundingsByUserId = async (userId: number): Promise<
     // 현재 구조에서는 uf.funding.userFundings는 해당 펀딩의 모든 참여자 정보를 가져옵니다.
   }));
 };
+
+// userId와 fundingId로 UserFunding 조회
+export const findUserFundingByUserIdAndFundingId = async (userId: number, fundingId: number): Promise<UserFunding | null> => {
+  return await prisma.userFunding.findFirst({
+    where: {
+      userId,
+      fundingId,
+    },
+  });
+};
