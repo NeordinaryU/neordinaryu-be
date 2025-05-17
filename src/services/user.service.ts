@@ -1,6 +1,6 @@
-import { createUser, findUserByEmail } from "../repositories/user.repository";
+import { createUser } from "../repositories/user.repository";
 import { hashPassword } from "../utils/hash";
-import { PrismaClient, User, Region } from "../generated/prisma";
+import { PrismaClient, User, Region } from "@prisma/client";
 import {
   findUserByUserId,
   updateUserRegion,
@@ -9,25 +9,12 @@ import { comparePassword } from "../utils/hash";
 export const prisma = new PrismaClient({ log: ["query"] });
 export const registerUser = async (data: {
   userId: string;
-  name: string;
-  email: string;
   password: string;
   region: Region;
 }) => {
-  const existing = await findUserByEmail(data.email);
-  if (existing) {
-    throw new Error("이미 사용 중인 이메일입니다.");
-  }
-
   const hashedPassword = await hashPassword(data.password);
 
   try {
-    const isEmail = await prisma.user.findUnique({
-      where: { email: data.email },
-    });
-    if (isEmail) {
-      throw new Error(`중복된 이메일입니다. ${data}`);
-    }
     const { region, ...userData } = data;
     return await createUser({
       ...userData,
@@ -55,8 +42,6 @@ export const loginUser = async (userId: string, password: string) => {
   // 토큰 발급을 원할 경우 여기에 추가
   return {
     userId: user.userId,
-    name: user.name,
-    email: user.email,
     region: user.region,
   };
 };
@@ -65,7 +50,6 @@ export const changeUserRegion = async (userId: string, region: Region) => {
     const user = await updateUserRegion(userId, region);
     return {
       userId: user.userId,
-      email: user.email,
       region: user.region,
     };
   } catch (err: any) {

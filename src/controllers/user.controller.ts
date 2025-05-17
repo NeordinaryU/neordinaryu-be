@@ -1,19 +1,17 @@
 import { Request, Response } from "express";
 import { registerUser } from "../services/user.service";
 import { loginUser, changeUserRegion } from "../services/user.service";
-import { PrismaClient, Region } from "../generated/prisma";
+import { PrismaClient, Region } from "@prisma/client";
 export const createUserHandler = async (req: Request, res: Response) => {
   try {
-    const { userId, name, email, password, region } = req.body;
+    const { userId, password, region } = req.body;
 
-    const user = await registerUser({ userId, name, email, password, region });
+    const user = await registerUser({ userId, password, region });
 
     res.status(201).json({
       message: "회원가입 성공",
       user: {
         userId: user.userId,
-        name: user.name,
-        email: user.email,
         region: user.region,
       },
     });
