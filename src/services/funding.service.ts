@@ -8,6 +8,7 @@ import {
   updateFundingStatus,
   fundingDonate,
   findParticipatedFundingsByUserId,
+  findUserFundingByUserIdAndFundingId, // 추가된 함수 임포트
 } from "../repositories/funding.repository";
 
 // 펀딩 생성
@@ -83,11 +84,19 @@ export const getAllFundings = async (
 };
 
 // 펀딩 상세 조회
-export const getFundingById = async (id: number): Promise<any> => {
+export const getFundingById = async (id: number, userId?: number): Promise<any> => { // userId 파라미터 추가
   const funding = await findFundingById(id);
 
   if (!funding) {
     throw new Error("펀딩을 찾을 수 없습니다.");
+  }
+
+  // 사용자가 특정 펀딩에 이미 후원했는지 확인
+  if (userId) {
+    const existingUserFunding = await findUserFundingByUserIdAndFundingId(userId, id);
+    if (existingUserFunding) {
+      throw new Error("이미 후원한 내역이 있습니다.");
+    }
   }
 
   return {

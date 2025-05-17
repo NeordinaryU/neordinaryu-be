@@ -1,4 +1,4 @@
-import { PrismaClient, Funding, Region, Prisma } from "@prisma/client";
+import { PrismaClient, Funding, Region, Prisma, UserFunding } from "@prisma/client";
 export const prisma = new PrismaClient({ log: ["query"] });
 
 // 펀딩 생성
@@ -31,6 +31,16 @@ export const findFundingById = async (id: number): Promise<any> => {
     },
   });
   return funding;
+};
+
+// userId와 fundingId로 UserFunding 조회
+export const findUserFundingByUserIdAndFundingId = async (userId: number, fundingId: number): Promise<UserFunding | null> => {
+  return await prisma.userFunding.findFirst({
+    where: {
+      userId,
+      fundingId,
+    },
+  });
 };
 
 // 모든 펀딩 조회 (필터링 및 정렬 기능 포함)
