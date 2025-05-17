@@ -17,6 +17,7 @@ enum Region {
   CHUNGCHEONG
   JEOLLA
   JEJU
+  GANGWON
 }
 
 model User {
@@ -38,7 +39,7 @@ model Magazine {
   id        Int      @id @default(autoincrement())
   title     String   @db.VarChar(255)
   body      String   @db.VarChar(255)
-  photo     String   @db.VarChar(255)
+  photoUrl  String   @db.VarChar(255)
   link      String   @db.VarChar(255)
   createdAt DateTime @default(now()) @map("created_at") @db.DateTime(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(6)
@@ -78,7 +79,7 @@ model Funding {
   id               Int      @id @default(autoincrement())
   userId           Int      @map("user_id")
   title            String   @db.VarChar(10)
-  description      String   @db.VarChar(500)
+  description      String   @db.VarChar(300)
   goalMoney        BigInt   @map("goal_money")
   fundedMoney      Int      @map("funded_money")
   deadlineDate     DateTime @map("deadline_date") @db.DateTime(6)
