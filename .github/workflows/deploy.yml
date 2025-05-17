@@ -1,11 +1,11 @@
 name: Deploy to EC2
 
 on:
-  push: 
+  push:
     branches:
       - main
- 
-jobs: 
+
+jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
@@ -35,10 +35,22 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            cd ~/neordinaryu-be-fork
+            cd ~/neordinaryu-be
             git pull
             npm ci
             npx prisma generate
             npx prisma migrate deploy
             npm run build
-            pm2 reload ecosystem.config.js || pm2 start ecosystem.config.js
+            
+            # PM2가 설치되어 있지 않으면 설치
+            if ! command -v pm2 &> /dev/null; then
+              echo "PM2가 설치되어 있지 않아 설치합니다."
+              npm install -g pm2
+            fi
+            
+            # 애플리케이션 시작 또는 재시작 (설정 파일 없이 직접 실행)
+            if pm2 list | grep -q "neordinaryu-be"; then
+              pm2 restart neordinaryu-be
+            else
+              pm2 start npm --name "neordinaryu-be" -- start
+            fi
