@@ -11,10 +11,9 @@ paths:
         "200":
           description: 성공
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
-                example: Hello World!
+                $ref: "#/components/schemas/ApiResponse"
   /users:
     post:
       summary: 회원가입
@@ -33,17 +32,17 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserSignupResponse"
+                $ref: "#/components/schemas/ApiSuccessResponse"
         "400":
           description: 이메일 중복 또는 유효하지 않은 요청
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/signErrorResponse"
+                $ref: "#/components/schemas/ApiErrorResponse"
   /users/login:
     post:
       summary: 로그인
-      description: 사용자 아이디(name)와 비밀번호로 로그인합니다.
+      description: 사용자 아이디(userId)와 비밀번호로 로그인합니다.
       tags:
         - Users
       requestBody:
@@ -58,13 +57,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LoginSuccessResponse"
+                $ref: "#/components/schemas/ApiSuccessResponse"
         "400":
           description: 로그인 실패 (잘못된 아이디 또는 비밀번호)
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: "#/components/schemas/ApiErrorResponse"
   /users/{userId}/region:
     patch:
       summary: 유저 지역 수정
@@ -90,22 +89,402 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UpdateRegionResponse"
+                $ref: "#/components/schemas/ApiSuccessResponse"
         "400":
           description: 잘못된 요청 (유효하지 않은 ENUM 값)
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/userPatchErrorResponse"
+                $ref: "#/components/schemas/ApiErrorResponse"
         "404":
           description: 해당 userId를 가진 유저를 찾을 수 없음
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/userCantFindErrorResponse"
+                $ref: "#/components/schemas/ApiErrorResponse"
+                
+  /fundings:
+    get:
+      summary: 모든 펀딩 조회
+      description: 등록된 모든 펀딩 목록을 조회합니다.
+      tags:
+        - Fundings
+      responses:
+        "200":
+          description: 펀딩 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiSuccessResponse"
+    post:
+      summary: 펀딩 등록
+      description: 새로운 펀딩을 등록합니다.
+      tags:
+        - Fundings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FundingCreateRequest"
+      responses:
+        "201":
+          description: 펀딩 등록 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiSuccessResponse"
+        "400":
+          description: 유효하지 않은 요청
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
+
+  /fundings/{id}:
+    get:
+      summary: 펀딩 상세 조회
+      description: 특정 펀딩의 상세 정보를 조회합니다.
+      tags:
+        - Fundings
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: 펀딩 ID
+      responses:
+        "200":
+          description: 펀딩 상세 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiSuccessResponse"
+        "404":
+          description: 해당 ID의 펀딩을 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
+
+  /magazines:
+    get:
+      summary: 모든 매거진 조회
+      description: 등록된 모든 매거진 목록을 조회합니다.
+      tags:
+        - Magazines
+      responses:
+        "200":
+          description: 매거진 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiSuccessResponse"
+    post:
+      summary: 매거진 등록
+      description: 새로운 매거진을 등록합니다.
+      tags:
+        - Magazines
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MagazineCreateRequest"
+      responses:
+        "201":
+          description: 매거진 등록 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiSuccessResponse"
+        "400":
+          description: 유효하지 않은 요청
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
+
+  /magazines/{id}:
+    get:
+      summary: 매거진 상세 조회
+      description: 특정 매거진의 상세 정보를 조회합니다.
+      tags:
+        - Magazines
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: 매거진 ID
+      responses:
+        "200":
+          description: 매거진 상세 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiSuccessResponse"
+        "404":
+          description: 해당 ID의 매거진을 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
+
+  /fundings/{id}/join:
+    post:
+      summary: 펀딩 참여
+      description: 특정 펀딩에 참여합니다.
+      tags:
+        - Fundings
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: 펀딩 ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JoinFundingRequest"
+      responses:
+        "201":
+          description: 펀딩 참여 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiSuccessResponse"
+        "400":
+          description: 유효하지 않은 요청
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
+        "404":
+          description: 해당 ID의 펀딩을 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
+
+  /users/{userId}/fundings:
+    get:
+      summary: 사용자 펀딩 참여 목록 조회
+      description: 특정 사용자가 참여한 모든 펀딩을 조회합니다.
+      tags:
+        - Users
+        - Fundings
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          description: 사용자 ID
+      responses:
+        "200":
+          description: 펀딩 참여 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiSuccessResponse"
+        "404":
+          description: 해당 ID의 사용자를 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
+
+  /fundings/{id}/photos:
+    get:
+      summary: 펀딩 사진 조회
+      description: 특정 펀딩의 모든 사진을 조회합니다.
+      tags:
+        - Fundings
+        - Photos
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: 펀딩 ID
+      responses:
+        "200":
+          description: 펀딩 사진 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiSuccessResponse"
+        "404":
+          description: 해당 ID의 펀딩을 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
+    
+    post:
+      summary: 펀딩 사진 추가
+      description: 특정 펀딩에 새로운 사진을 추가합니다.
+      tags:
+        - Fundings
+        - Photos
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: 펀딩 ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PhotoCreateRequest"
+      responses:
+        "201":
+          description: 펀딩 사진 추가 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiSuccessResponse"
+        "400":
+          description: 유효하지 않은 요청
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
+        "404":
+          description: 해당 ID의 펀딩을 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
+
+  /fundings/{id}/comments:
+    get:
+      summary: 펀딩 댓글 조회
+      description: 특정 펀딩의 모든 댓글을 조회합니다.
+      tags:
+        - Fundings
+        - Comments
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: 펀딩 ID
+      responses:
+        "200":
+          description: 펀딩 댓글 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiSuccessResponse"
+        "404":
+          description: 해당 ID의 펀딩을 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
+    
+    post:
+      summary: 펀딩 댓글 추가
+      description: 특정 펀딩에 새로운 댓글을 추가합니다.
+      tags:
+        - Fundings
+        - Comments
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: 펀딩 ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommentCreateRequest"
+      responses:
+        "201":
+          description: 펀딩 댓글 추가 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiSuccessResponse"
+        "400":
+          description: 유효하지 않은 요청
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
+        "404":
+          description: 해당 ID의 펀딩을 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
 
 components:
   schemas:
+    ApiResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "SUCCESS"
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "요청이 성공적으로 처리되었습니다."
+        data:
+          type: string
+          example: "Hello World!"
+          
+    ApiSuccessResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "SUCCESS"
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "요청이 성공적으로 처리되었습니다."
+        data:
+          type: object
+          
+    ApiErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "FAIL"
+        statusCode:
+          type: integer
+          example: 400
+        message:
+          type: string
+          example: "요청 처리 중 오류가 발생했습니다."
+        error:
+          type: object
+          nullable: true
+        data:
+          type: object
+          nullable: true
     UserSignupRequest:
       type: object
       required:
@@ -117,92 +496,37 @@ components:
       properties:
         userId:
           type: string
-          example: yee2know
+          example: "yee2know"
         name:
           type: string
-          example: 원종훈
+          example: "원종훈"
         email:
           type: string
           format: email
-          example: wj1101010@gmail.com
+          example: "wj1101010@gmail.com"
         password:
           type: string
-          example: qwertyu
+          example: "qwertyu"
         region:
           type: string
-          enum: [SEOUL, BUSAN, DAEGU, INCHEON]
-          example: SEOUL
+          enum: [SEOUL, INCHEON_GYEONGGI, GYEONGSANG, CHUNGCHEONG, GANGWON, JEOLLA, JEJU]
+          example: "SEOUL"
 
-    UserSignupResponse:
-      type: object
-      properties:
-        message:
-          type: string
-          example: 회원가입 성공
-        user:
-          type: object
-          properties:
-            userId:
-              type: string
-              example: yee2know
-            name:
-              type: string
-              example: 원종훈
-            email:
-              type: string
-              example: wj1101010@gmail.com
-            region:
-              type: string
-              example: SEOUL
-    signErrorResponse:
-      type: object
-      properties:
-        message:
-          type: string
-          example: 이미 사용 중인 이메일입니다.
     LoginRequest:
       type: object
       required:
-        - name
+        - userId
         - password
       properties:
-        name:
+        userId:
           type: string
           description: 아이디 (userId)
-          example: yee2know
+          example: "yee2know"
         password:
           type: string
           description: 비밀번호
-          example: qwertyu
+          example: "qwertyu"
 
-    LoginSuccessResponse:
-      type: object
-      properties:
-        message:
-          type: string
-          example: 로그인 성공
-        user:
-          type: object
-          properties:
-            userId:
-              type: string
-              example: yee2know
-            name:
-              type: string
-              example: 원종훈
-            email:
-              type: string
-              example: wj1101010@gmail.com
-            region:
-              type: string
-              example: SEOUL
-
-    ErrorResponse:
-      type: object
-      properties:
-        message:
-          type: string
-          example: 비밀번호가 일치하지 않습니다.
     UpdateRegionRequest:
       type: object
       required:
@@ -210,37 +534,95 @@ components:
       properties:
         region:
           type: string
-          enum: [SEOUL, BUSAN, DAEGU, INCHEON]
-          example: BUSAN
-
-    UpdateRegionResponse:
+          enum: [SEOUL, INCHEON_GYEONGGI, GYEONGSANG, CHUNGCHEONG, GANGWON, JEOLLA, JEJU]
+          example: "SEOUL"
+          
+    FundingCreateRequest:
       type: object
+      required:
+        - title
+        - goalMoney
+        - deadlineDate
+        - userId
+        - region
       properties:
-        message:
+        title:
           type: string
-          example: 지역이 변경되었습니다.
-        user:
-          type: object
-          properties:
-            userId:
-              type: string
-              example: yee2know
-            email:
-              type: string
-              example: wj1101010@gmail.com
-            region:
-              type: string
-              example: BUSAN
-
-    userPatchErrorResponse:
+          example: "새로운 펀딩 프로젝트"
+          maxLength: 255
+        description:
+          type: string
+          example: "이 펀딩은 새로운 프로젝트를 위한 것입니다."
+        goalMoney:
+          type: integer
+          example: 1000000
+        deadlineDate:
+          type: string
+          format: date-time
+          example: "2025-12-31T23:59:59Z"
+        userId:
+          type: integer
+          example: 1
+        region:
+          type: string
+          enum: [SEOUL, INCHEON_GYEONGGI, GYEONGSANG, CHUNGCHEONG, GANGWON, JEOLLA, JEJU]
+          example: "SEOUL"
+    
+    MagazineCreateRequest:
       type: object
+      required:
+        - UserId
+        - title
+        - body
       properties:
-        message:
+        UserId:
+          type: integer
+          example: 1
+          description: 매거진을 작성한 사용자의 ID
+        title:
           type: string
-          example: "region 값은 다음 중 하나여야 합니다: SEOUL, BUSAN, DAEGU, INCHEON"
-    userCantFindErrorResponse:
+          example: "새로운 매거진 글"
+          maxLength: 255
+        body:
+          type: string
+          example: "이 매거진은 새로운 소식을 전달합니다."
+    
+    JoinFundingRequest:
       type: object
+      required:
+        - UserId
+        - fundedMoney
       properties:
-        message:
+        UserId:
+          type: integer
+          example: 1
+          description: 펀딩에 참여하는 사용자의 ID
+        fundedMoney:
+          type: integer
+          example: 50000
+          description: 펀딩에 참여하는 금액
+          
+    PhotoCreateRequest:
+      type: object
+      required:
+        - url
+      properties:
+        url:
           type: string
-          example: "사용자를 찾을 수 없습니다."
+          example: "https://example.com/images/photo1.jpg"
+          description: 펀딩 사진의 URL
+          
+    CommentCreateRequest:
+      type: object
+      required:
+        - content
+        - userId
+      properties:
+        content:
+          type: string
+          example: "이 펀딩 프로젝트에 관심이 많습니다."
+          description: 댓글 내용
+        userId:
+          type: integer
+          example: 1
+          description: 댓글 작성자 ID

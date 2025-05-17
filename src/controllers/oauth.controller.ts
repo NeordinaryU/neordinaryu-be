@@ -1,10 +1,15 @@
 // src/controllers/auth.controller.ts
-import { Request, Response } from "express";
+import { RequestHandler } from "express";
 
-export const getCurrentUser = (req: Request, res: Response): void => {
-  if (!req.user) {
-    res.status(401).json({ message: "Unauthorized" });
+export const getCurrentUser: RequestHandler = (req, res, next) => {
+  try {
+    if (!req.user) {
+      res.sendError(401, "Unauthorized");
+      return;
+    }
+
+    res.sendSuccess(200, "사용자 정보를 성공적으로 가져왔습니다.", req.user);
+  } catch (error) {
+    next(error);
   }
-
-  res.json(req.user);
 };
