@@ -57,44 +57,49 @@ export const findAllFundings = async (
     where,
     orderBy,
     include: {
-      user: { // 펀딩 생성자 정보
+      user: {
+        // 펀딩 생성자 정보
         select: {
           userId: true,
           region: true,
-        }
-      }, 
-      userFundings: { // 해당 펀딩에 참여한 사용자들의 후원 정보
+        },
+      },
+      userFundings: {
+        // 해당 펀딩에 참여한 사용자들의 후원 정보
         select: {
           userId: true,
           userFundedMoney: true,
           user: {
             select: {
               userId: true, // 후원한 사용자의 ID
-            }
-          }
-        }
+            },
+          },
+        },
       },
-      comments: { // 해당 펀딩의 댓글 정보
+      comments: {
+        // 해당 펀딩의 댓글 정보
         select: {
           content: true,
           createdAt: true,
           user: {
             select: {
               userId: true, // 댓글 작성자 ID
-            }
-          }
+            },
+          },
         },
         orderBy: {
-          createdAt: 'desc' // 최신 댓글 순
-        }
-      }
+          createdAt: "desc", // 최신 댓글 순
+        },
+      },
     },
   });
   return fundings;
 };
 
 // 특정 사용자의 펀딩 조회
-export const findFundingsByUserId = async (userId: number): Promise<Funding[]> => {
+export const findFundingsByUserId = async (
+  userId: number
+): Promise<Funding[]> => {
   const fundings = await prisma.funding.findMany({
     where: { userId },
     include: {
@@ -102,7 +107,7 @@ export const findFundingsByUserId = async (userId: number): Promise<Funding[]> =
         select: {
           userId: true,
           region: true,
-        }
+        },
       },
       userFundings: {
         select: {
@@ -111,9 +116,9 @@ export const findFundingsByUserId = async (userId: number): Promise<Funding[]> =
           user: {
             select: {
               userId: true,
-            }
-          }
-        }
+            },
+          },
+        },
       },
       comments: {
         select: {
@@ -122,13 +127,13 @@ export const findFundingsByUserId = async (userId: number): Promise<Funding[]> =
           user: {
             select: {
               userId: true,
-            }
-          }
+            },
+          },
         },
         orderBy: {
-          createdAt: 'desc'
-        }
-      }
+          createdAt: "desc",
+        },
+      },
     },
   });
   return fundings;
@@ -166,6 +171,18 @@ export const fundingDonate = async (
 ): Promise<{ funding: Funding; userFunding: any }> => {
   // 트랜잭션으로 처리
   return await prisma.$transaction(async (tx) => {
+    const fundingAuthor = await tx.funding.findUnique({
+      where: { id: fundingId },
+      select: { userId: true },
+    });
+    // 펀딩이 존재하지 않으면 예외
+    if (!fundingAuthor) {
+      throw new Error("존재하지 않는 펀딩입니다.");
+    }
+    // ✅ 1. 작성자와 후원자 동일 여부 체크
+    if (fundingAuthor.userId === userId) {
+      throw new Error("자신이 생성한 펀딩에는 후원할 수 없습니다.");
+    }
     // 1. 기존 user_funding 조회
     const existingUserFunding = await tx.userFunding.findFirst({
       where: {
@@ -175,13 +192,14 @@ export const fundingDonate = async (
     });
 
     let newUserFundedMoney: bigint;
-    
+
     // 2. UserFunding 업데이트 또는 생성
     let userFunding;
     if (existingUserFunding) {
       // 기존 후원 금액에 새로운 금액 추가
-      newUserFundedMoney = existingUserFunding.userFundedMoney + userFundedMoney;
-      
+      newUserFundedMoney =
+        existingUserFunding.userFundedMoney + userFundedMoney;
+
       userFunding = await tx.userFunding.update({
         where: { id: existingUserFunding.id },
         data: { userFundedMoney: newUserFundedMoney },
@@ -189,7 +207,7 @@ export const fundingDonate = async (
     } else {
       // 새 후원 등록
       newUserFundedMoney = userFundedMoney;
-      
+
       userFunding = await tx.userFunding.create({
         data: {
           userId,
@@ -214,41 +232,47 @@ export const fundingDonate = async (
 };
 
 // 사용자가 참여한 펀딩 목록 조회
-export const findParticipatedFundingsByUserId = async (userId: number): Promise<any[]> => {
+export const findParticipatedFundingsByUserId = async (
+  userId: number
+): Promise<any[]> => {
   const userFundings = await prisma.userFunding.findMany({
     where: { userId },
     include: {
-      funding: { // Funding 정보 포함
-        include: { // Funding 상세 정보 내 추가 정보 포함
-          user: { // 펀딩 생성자 정보
+      funding: {
+        // Funding 정보 포함
+        include: {
+          // Funding 상세 정보 내 추가 정보 포함
+          user: {
+            // 펀딩 생성자 정보
             select: {
               userId: true,
               region: true,
-            }
+            },
           },
-          comments: { // 해당 펀딩의 댓글 정보
+          comments: {
+            // 해당 펀딩의 댓글 정보
             select: {
               content: true,
               createdAt: true,
               user: {
                 select: {
                   userId: true, // 댓글 작성자 ID
-                }
-              }
+                },
+              },
             },
             orderBy: {
-              createdAt: 'desc' // 최신 댓글 순
-            }
-          }
-        }
+              createdAt: "desc", // 최신 댓글 순
+            },
+          },
+        },
       },
     },
     orderBy: {
-      createdAt: 'desc', // 최신순으로 정렬하거나 필요에 따라 변경
+      createdAt: "desc", // 최신순으로 정렬하거나 필요에 따라 변경
     },
   });
 
-  return userFundings.map(uf => ({
+  return userFundings.map((uf) => ({
     ...uf.funding, // Funding의 모든 필드 (user, comments 포함)
     userFundedMoney: uf.userFundedMoney, // 사용자가 해당 펀딩에 후원한 금액
     // userFundings 필드는 이미 uf.funding 내에 포함되어 있을 수 있으나,
