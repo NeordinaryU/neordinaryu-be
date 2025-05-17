@@ -27,7 +27,7 @@ async function main() {
         photoUrl:
           "https://i.pinimg.com/736x/de/9b/1b/de9b1b0a21c498311fbd50600d748b24.jpg",
         region: "SEOUL",
-        isOpen: true,
+        status: true,
         userId: 1,
         description: "설명",
         privacyAgreement: true,
@@ -44,7 +44,7 @@ async function main() {
         photoUrl:
           "https://i.pinimg.com/736x/56/cb/08/56cb080eaffbdd337b5180e8ed9e33e6.jpg",
         region: "SEOUL",
-        isOpen: true,
+        status: true,
         userId: 1,
         description: "설명",
         privacyAgreement: true,
@@ -61,7 +61,7 @@ async function main() {
         photoUrl:
           "https://i.pinimg.com/736x/90/7c/66/907c6619d281f759ee18bec10ea3d26b.jpg",
         region: "SEOUL",
-        isOpen: true,
+        status: true,
         userId: 1,
         description: "설명",
         privacyAgreement: true,
@@ -78,7 +78,7 @@ async function main() {
         photoUrl:
           "https://i.pinimg.com/736x/f0/ef/9a/f0ef9adb564e308d8e69bda81125a4fa.jpg",
         region: "INCHEON_GYEONGGI",
-        isOpen: true,
+        status: true,
         userId: 1,
         description: "설명",
         privacyAgreement: true,
@@ -95,7 +95,7 @@ async function main() {
         photoUrl:
           "https://i.pinimg.com/736x/d5/cd/59/d5cd5901f6b28e9d9bef3fdc080baf86.jpg",
         region: "INCHEON_GYEONGGI",
-        isOpen: true,
+        status: true,
         userId: 1,
         description: "설명",
         privacyAgreement: true,
@@ -112,7 +112,7 @@ async function main() {
         photoUrl:
           "https://i.pinimg.com/736x/4e/b4/86/4eb4867c5e7d3fee01ed2767b27cc5fa.jpg",
         region: "INCHEON_GYEONGGI",
-        isOpen: true,
+        status: true,
         userId: 1,
         description: "설명",
         privacyAgreement: true,
@@ -129,7 +129,7 @@ async function main() {
         photoUrl:
           "https://i.pinimg.com/736x/3f/d9/72/3fd972185445334a5ac966af130be17b.jpg",
         region: "GYEONGSANG",
-        isOpen: true,
+        status: true,
         userId: 1,
         description: "설명",
         privacyAgreement: true,
@@ -146,7 +146,7 @@ async function main() {
         photoUrl:
           "https://i.pinimg.com/736x/7e/7c/8c/7e7c8cc3d103c57d092287218c4c00a9.jpg",
         region: "GYEONGSANG",
-        isOpen: true,
+        status: true,
         userId: 1,
         description: "설명",
         privacyAgreement: true,
@@ -163,7 +163,7 @@ async function main() {
         photoUrl:
           "https://i.pinimg.com/736x/ea/b7/4c/eab74cd5d7a788083c89825ce7fd85f0.jpg",
         region: "GYEONGSANG",
-        isOpen: true,
+        status: true,
         userId: 1,
         description: "설명",
         privacyAgreement: true,
@@ -182,7 +182,7 @@ async function main() {
         photoUrl:
           "https://i.pinimg.com/736x/0b/a8/da/0ba8da2012d94b35619799f6fa903051.jpg",
         region: "CHUNGCHEONG",
-        isOpen: true,
+        status: true,
         userId: 1,
         description: "설명",
         privacyAgreement: true,
@@ -199,7 +199,7 @@ async function main() {
         photoUrl:
           "https://i.pinimg.com/736x/a6/d7/84/a6d7845642f72286445f869df7053d86.jpg",
         region: "CHUNGCHEONG",
-        isOpen: true,
+        status: true,
         userId: 1,
         description: "설명",
         privacyAgreement: true,
@@ -216,7 +216,7 @@ async function main() {
         photoUrl:
           "https://i.pinimg.com/736x/fb/c5/46/fbc546003875f689a6d67a8977891e5c.jpg",
         region: "CHUNGCHEONG",
-        isOpen: true,
+        status: true,
         userId: 1,
         description: "설명",
         privacyAgreement: true,
@@ -235,7 +235,7 @@ async function main() {
         photoUrl:
           "https://i.pinimg.com/736x/3e/51/cb/3e51cb1e3dd26675f08208b85f104e3f.jpg",
         region: "GANGWON",
-        isOpen: true,
+        status: true,
         userId: 1,
         description: "설명",
         privacyAgreement: true,
@@ -252,7 +252,7 @@ async function main() {
         photoUrl:
           "https://i.pinimg.com/736x/a2/73/c8/a273c8f6e9979da78857ab8b577afedd.jpg",
         region: "GANGWON",
-        isOpen: true,
+        status: true,
         userId: 1,
         description: "설명",
         privacyAgreement: true,
@@ -269,7 +269,7 @@ async function main() {
         photoUrl:
           "https://i.pinimg.com/736x/49/51/f6/4951f68a4baa890f1d6536146cf4cd0b.jpg",
         region: "GANGWON",
-        isOpen: true,
+        status: true,
         userId: 1,
         description: "설명",
         privacyAgreement: true,
@@ -286,7 +286,7 @@ async function main() {
         photoUrl:
           "https://i.pinimg.com/736x/a9/24/92/a92492c6e05ab39140a4dae3e9898d82.jpg",
         region: "JEOLLA",
-        isOpen: true,
+        status: true,
         userId: 1,
         description: "설명",
         privacyAgreement: true,
@@ -303,7 +303,7 @@ async function main() {
         photoUrl:
           "https://i.pinimg.com/736x/a6/46/af/a646af907b62001b13cfb993166bcc3b.jpg",
         region: "JEOLLA",
-        isOpen: true,
+        status: true,
         userId: 1,
         description: "설명",
         privacyAgreement: true,
@@ -320,7 +320,7 @@ async function main() {
         photoUrl:
           "https://i.pinimg.com/736x/16/85/fc/1685fccf593bb334ad5778471f39246a.jpg",
         region: "JEOLLA",
-        isOpen: true,
+        status: true,
         userId: 1,
         description: "설명",
         privacyAgreement: true,
@@ -337,7 +337,7 @@ async function main() {
         photoUrl:
           "https://i.pinimg.com/736x/64/cc/72/64cc723abfb0e0987e1c1f53f22cff7a.jpg",
         region: "JEJU",
-        isOpen: true,
+        status: true,
         userId: 1,
         description: "설명",
         privacyAgreement: true,
@@ -354,7 +354,7 @@ async function main() {
         photoUrl:
           "https://i.pinimg.com/736x/54/f4/ef/54f4efa09160b7f4d26bd76a83e5df0b.jpg",
         region: "JEJU",
-        isOpen: true,
+        status: true,
         userId: 1,
         description: "설명",
         privacyAgreement: true,
@@ -371,7 +371,7 @@ async function main() {
         photoUrl:
           "https://i.pinimg.com/736x/27/56/43/27564375ce3e2738c1a2bda5e630500c.jpg",
         region: "JEJU",
-        isOpen: true,
+        status: true,
         userId: 1,
         description: "설명",
         privacyAgreement: true,

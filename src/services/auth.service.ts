@@ -30,6 +30,7 @@ export interface AuthTokens {
   user?: {
     userId: string;
     region: string | null;
+    isOnboarded?: boolean;
   };
 }
 
@@ -69,7 +70,7 @@ export const loginService = async (
     user: {
       userId: user.userId,
       region: user.region,
-      isOnboarded: user.isOnboarded
+      isOnboarded: (user as any).isOnboarded
     }
   };
 };
