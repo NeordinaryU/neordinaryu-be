@@ -6,6 +6,7 @@ import authRouter from "./routes/auth";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
 import dotenv from "dotenv";
+import morgan from "morgan"; // morgan 임포트
 import { responseHandler, errorHandler } from "./utils/response.util";
 import { authenticateToken } from "./utils/auth.middleware";
 import cookieParser from 'cookie-parser';
@@ -24,6 +25,9 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(bigintMiddleware);
 app.use(snakeToCamelMiddleware); // 스네이크 케이스를 카멜 케이스로 변환
+
+// HTTP 요청 로깅 미들웨어 추가
+app.use(morgan("dev")); // 'dev' 포맷은 개발 환경에 적합한 로그를 출력합니다.
 
 app.use(authenticateToken);
 

@@ -30,8 +30,8 @@ const parseExpiryToSeconds = (expiryString: string): number => {
   }
 };
 
-const ACCESS_TOKEN_EXPIRES_SECONDS = parseExpiryToSeconds(process.env.ACCESS_TOKEN_EXPIRES_IN || '7d'); // Default 15m
-const REFRESH_TOKEN_EXPIRES_SECONDS = parseExpiryToSeconds(process.env.REFRESH_TOKEN_EXPIRES_IN || '7d');   // Default 7d
+const ACCESS_TOKEN_EXPIRES_SECONDS = parseExpiryToSeconds(process.env.ACCESS_TOKEN_EXPIRES_IN || '7d'); 
+const REFRESH_TOKEN_EXPIRES_SECONDS = parseExpiryToSeconds(process.env.REFRESH_TOKEN_EXPIRES_IN || '7d'); 
 
 export interface UserPayload {
   id: number; 
