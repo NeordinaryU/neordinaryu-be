@@ -99,7 +99,7 @@ export const getFundingById = async (id: number): Promise<any> => {
     detailAddress: funding.detailAddress,
     goalMoney: funding.goalMoney,
     fundedMoney: funding.fundedMoney,
-    achievementRate: funding.goalMoney > 0 ? Math.floor((funding.fundedMoney * 100) / Number(funding.goalMoney)) : 0,
+    achievementRate: funding.goalMoney > 0 ? Math.floor((Number(funding.fundedMoney) * 100) / Number(funding.goalMoney)) : 0,
     deadlineDate: funding.deadlineDate,
     completeDueDate: funding.completeDueDate,
     isOpen: funding.status, // status를 isOpen으로 변경
