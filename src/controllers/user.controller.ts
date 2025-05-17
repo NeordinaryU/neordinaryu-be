@@ -13,7 +13,11 @@ export const createUserHandler: RequestHandler = async (req, res, next) => {
       region: user.region,
     });
   } catch (err) {
-    next(err);
+    if (err instanceof Error) {
+      res.sendError(400, err.message);
+    } else {
+      res.sendError(500, "서버 오류");
+    }
   }
 };
 
@@ -27,10 +31,16 @@ export const loginHandler: RequestHandler = async (req, res, next) => {
     }
 
     const user = await loginUser(userId, password);
-
-    res.sendSuccess(200, "로그인 성공", user);
+    if (user.region === null) {
+      res.sendSuccess(200, "로그인 성공", { ...user, onboarding: false });
+    }
+    res.sendSuccess(200, "로그인 성공", { ...user, onboarding: true });
   } catch (err) {
-    next(err);
+    if (err instanceof Error) {
+      res.sendError(400, err.message);
+    } else {
+      res.sendError(500, "서버 오류");
+    }
   }
 };
 
@@ -43,18 +53,25 @@ export const updateRegionHandler: RequestHandler = async (req, res, next) => {
       res.sendError(400, "region은 필수입니다.");
       return;
     }
-    
+
     const isValid = Object.values(Region).includes(region as Region);
     if (!isValid) {
-      res.sendError(400, `region 값은 다음 중 하나여야 합니다: ${Object.values(
-          Region
-        ).join(", ")}`);
+      res.sendError(
+        400,
+        `region 값은 다음 중 하나여야 합니다: ${Object.values(Region).join(
+          ", "
+        )}`
+      );
       return;
     }
-    
+
     const updated = await changeUserRegion(userId, region);
     res.sendSuccess(200, "지역이 변경되었습니다.", updated);
   } catch (err) {
-    next(err);
+    if (err instanceof Error) {
+      res.sendError(400, err.message);
+    } else {
+      res.sendError(500, "서버 오류");
+    }
   }
 };
