@@ -33,22 +33,59 @@ export const findFundingById = async (id: number): Promise<Funding | null> => {
 // 모든 펀딩 조회 (필터링 및 정렬 기능 포함)
 export const findAllFundings = async (
   region?: Region,
-  align?: 'rate' | 'latest'
+  align?: "rate" | "latest"
 ): Promise<Funding[]> => {
   const where = region ? { region } : {};
-  
+
   let orderBy: Prisma.FundingOrderByWithRelationInput = {};
-  
-  if (align === 'latest') {
-    orderBy = { createdAt: 'desc' };
-  } else if (align === 'rate') {
+
+  if (align === "latest") {
+    orderBy = { createdAt: "desc" };
+  } else if (align === "rate") {
     // 달성률 기준 정렬을 위한 계산 (현재는 단순 fundedMoney 기준)
-    orderBy = { fundedMoney: 'desc' };
+    // Prisma는 직접적인 계산 필드 정렬을 지원하지 않으므로,
+    // fundedMoney / goalMoney 같은 비율로 정렬하려면
+    // 데이터베이스 레벨에서 뷰를 만들거나, 애플리케이션 레벨에서 정렬해야 합니다.
+    // 여기서는 fundedMoney를 기준으로 정렬합니다.
+    orderBy = { fundedMoney: "desc" };
   }
-  
+
   const fundings = await prisma.funding.findMany({
     where,
     orderBy,
+    include: {
+      user: { // 펀딩 생성자 정보
+        select: {
+          userId: true,
+          region: true,
+        }
+      }, 
+      userFundings: { // 해당 펀딩에 참여한 사용자들의 후원 정보
+        select: {
+          userId: true,
+          userFundedMoney: true,
+          user: {
+            select: {
+              userId: true, // 후원한 사용자의 ID
+            }
+          }
+        }
+      },
+      comments: { // 해당 펀딩의 댓글 정보
+        select: {
+          content: true,
+          createdAt: true,
+          user: {
+            select: {
+              userId: true, // 댓글 작성자 ID
+            }
+          }
+        },
+        orderBy: {
+          createdAt: 'desc' // 최신 댓글 순
+        }
+      }
+    },
   });
   return fundings;
 };
@@ -57,6 +94,39 @@ export const findAllFundings = async (
 export const findFundingsByUserId = async (userId: number): Promise<Funding[]> => {
   const fundings = await prisma.funding.findMany({
     where: { userId },
+    include: {
+      user: {
+        select: {
+          userId: true,
+          region: true,
+        }
+      },
+      userFundings: {
+        select: {
+          userId: true,
+          userFundedMoney: true,
+          user: {
+            select: {
+              userId: true,
+            }
+          }
+        }
+      },
+      comments: {
+        select: {
+          content: true,
+          createdAt: true,
+          user: {
+            select: {
+              userId: true,
+            }
+          }
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
+      }
+    },
   });
   return fundings;
 };
@@ -145,7 +215,30 @@ export const findParticipatedFundingsByUserId = async (userId: number): Promise<
   const userFundings = await prisma.userFunding.findMany({
     where: { userId },
     include: {
-      funding: true, // Funding 정보 포함
+      funding: { // Funding 정보 포함
+        include: { // Funding 상세 정보 내 추가 정보 포함
+          user: { // 펀딩 생성자 정보
+            select: {
+              userId: true,
+              region: true,
+            }
+          },
+          comments: { // 해당 펀딩의 댓글 정보
+            select: {
+              content: true,
+              createdAt: true,
+              user: {
+                select: {
+                  userId: true, // 댓글 작성자 ID
+                }
+              }
+            },
+            orderBy: {
+              createdAt: 'desc' // 최신 댓글 순
+            }
+          }
+        }
+      },
     },
     orderBy: {
       createdAt: 'desc', // 최신순으로 정렬하거나 필요에 따라 변경
@@ -153,7 +246,11 @@ export const findParticipatedFundingsByUserId = async (userId: number): Promise<
   });
 
   return userFundings.map(uf => ({
-    ...uf.funding, // Funding의 모든 필드
+    ...uf.funding, // Funding의 모든 필드 (user, comments 포함)
     userFundedMoney: uf.userFundedMoney, // 사용자가 해당 펀딩에 후원한 금액
+    // userFundings 필드는 이미 uf.funding 내에 포함되어 있을 수 있으나,
+    // 명시적으로 참여한 사용자의 후원금액만 최상위로 가져오기 위해 uf.userFundedMoney를 사용합니다.
+    // 만약 uf.funding.userFundings도 필요하다면, Prisma include 구조를 조정해야 합니다.
+    // 현재 구조에서는 uf.funding.userFundings는 해당 펀딩의 모든 참여자 정보를 가져옵니다.
   }));
 };
