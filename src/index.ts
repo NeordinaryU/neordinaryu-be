@@ -8,11 +8,15 @@ import YAML from "yamljs";
 import dotenv from "dotenv";
 import { responseHandler, errorHandler } from "./utils/response.util";
 import magazineRouter from "./routes/magazine.route";
+import { camelCaseMiddleware } from "./utils/case-converter.util";
 dotenv.config();
 
 const app = express();
 const port = 3000;
 app.use(express.json());
+
+// 모든 요청의 속성명을 카멜케이스로 변환하는 미들웨어
+app.use(camelCaseMiddleware);
 
 app.use(responseHandler); 
 // Swagger 문서 로드

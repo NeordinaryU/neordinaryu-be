@@ -1,5 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import { Request, Response, NextFunction } from "express";
+import { jsonStringifyWithBigInt } from "./bigint.util";
 
 interface ErrorWithStatusCode extends Error {
     statusCode?: number;
@@ -41,6 +42,12 @@ class ApiResponse {
 }
 
 export const responseHandler = (_req: Request, res: Response, next: NextFunction): void => {
+        // JSON 메서드 오버라이드하여 BigInt 처리
+        const originalJson = res.json;
+        res.json = function(data: any) {
+                return originalJson.call(this, JSON.parse(jsonStringifyWithBigInt(data)));
+        };
+
         // 성공 응답을 위한 메서드
         (res as CustomResponse).sendSuccess = function (
                 statusCode = StatusCodes.OK,

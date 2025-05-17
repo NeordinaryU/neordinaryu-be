@@ -58,4 +58,44 @@ export const restoreBigInt = (obj: any): any => {
   }
   
   return result;
+};
+
+/**
+ * BigInt를 JSON으로 직렬화할 수 있도록 하는 유틸리티
+ */
+
+// BigInt 타입 확장을 위한 인터페이스 선언
+declare global {
+  interface BigInt {
+    toJSON(): string;
+  }
+}
+
+// BigInt 프로토타입에 toJSON 메서드 추가
+BigInt.prototype.toJSON = function() {
+  return this.toString();
+};
+
+/**
+ * BigInt 값을 포함한 객체를 JSON으로 직렬화하는 함수
+ * @param data 직렬화할 데이터
+ * @returns JSON 문자열
+ */
+export const jsonStringifyWithBigInt = (data: any): string => {
+  return JSON.stringify(data, (_, value) => 
+    typeof value === 'bigint' ? value.toString() : value
+  );
+};
+
+/**
+ * Express 응답 객체의 json 메서드를 오버라이드하는 미들웨어
+ */
+export const bigintMiddleware = (req: any, res: any, next: any) => {
+  const originalJson = res.json;
+  
+  res.json = function(data: any) {
+    return originalJson.call(this, JSON.parse(jsonStringifyWithBigInt(data)));
+  };
+  
+  next();
 }; 
