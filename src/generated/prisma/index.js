@@ -214,7 +214,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/wonjongho/Desktop/developments/umc_nodejs/hackathon/neordinaryu-be/src/generated/prisma",
+      "value": "/Users/chowon/Projects/neordinaryu-be/src/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -228,12 +228,11 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/wonjongho/Desktop/developments/umc_nodejs/hackathon/neordinaryu-be/prisma/schema.prisma",
+    "sourceFilePath": "/Users/chowon/Projects/neordinaryu-be/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "../../../prisma",
   "clientVersion": "6.8.2",
