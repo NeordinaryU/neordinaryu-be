@@ -24,10 +24,10 @@ const port = parseInt(process.env.PORT || "3000", 10);
 app.use(express.json());
 app.use(cookieParser());
 app.use(bigintMiddleware);
-app.use(snakeToCamelMiddleware); // 스네이크 케이스를 카멜 케이스로 변환
+app.use(snakeToCamelMiddleware);
 
 // HTTP 요청 로깅 미들웨어 추가
-app.use(morgan("dev")); // 'dev' 포맷은 개발 환경에 적합한 로그를 출력합니다.
+app.use(morgan("dev")); // 'dev' 포맷은 개발 환경에 적합한 로그를 출력
 
 app.use(authenticateToken);
 

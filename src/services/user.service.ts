@@ -44,3 +44,18 @@ export const changeUserRegion = async (userId: string, region: Region) => {
     throw err;
   }
 };
+
+// 사용자 지역 정보 조회 서비스
+export const getUserRegionService = async (userIdString: string): Promise<{ region: Region | null }> => {
+  const user = await findUserByUserId(userIdString); // user.repository에서 사용자 ID로 사용자 정보 조회
+  if (!user) {
+    throw Object.assign(new Error("사용자를 찾을 수 없습니다."), { statusCode: 404 });
+  }
+  if (user.region === null) {
+    // 사용자는 존재하지만 지역 정보가 없는 경우 (예: 아직 온보딩 전)
+    // 클라이언트 요구사항에 따라 null을 반환하거나, 특정 메시지와 함께 오류를 반환할 수 있습니다.
+    // 여기서는 null을 포함하는 객체를 반환합니다.
+     throw Object.assign(new Error("사용자 지역 정보가 설정되지 않았습니다."), { statusCode: 400 });
+  }
+  return { region: user.region };
+};
