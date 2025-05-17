@@ -5,10 +5,9 @@ import { Region } from "../generated/prisma";
 
 export const createUserHandler: RequestHandler = async (req, res, next) => {
   try {
-    const { userId, name, email, password, region } = req.body;
+    const { userId, password, region } = req.body;
 
-    const user = await registerUser({ userId, name, email, password, region });
-
+    const user = await registerUser({ userId, password, region });
     res.sendSuccess(201, "회원가입 성공", {
       userId: user.userId,
       name: user.name,
