@@ -155,21 +155,22 @@ export const getFundingsHandler: RequestHandler = async (req, res, next) => {
 export const getFundingDetailsHandler: RequestHandler = async (req, res, next) => {
   try {
     const { fundingId } = req.params;
-    
+    const userId = req.user?.id; // 사용자 ID 추출
     // ID 유효성 검증
     if (!fundingId || isNaN(Number(fundingId))) {
       res.sendError(400, "유효한 펀딩 ID가 필요합니다.");
       return;
     }
-    
     const funding = await getFundingById(Number(fundingId));
-    
     if (!funding) {
       res.sendError(404, "해당 ID의 펀딩을 찾을 수 없습니다.");
       return;
     }
-    
-    res.sendSuccess(200, "펀딩 상세 정보를 성공적으로 불러왔습니다.", funding);
+    // isOwner 판별
+    const isOwner = userId && funding.userId === userId ? true : false;
+    // userId는 응답에서 제거하고, isOwner만 추가
+    const { userId: _, ...fundingData } = funding;
+    res.sendSuccess(200, "펀딩 상세 정보를 성공적으로 불러왔습니다.", { ...fundingData, isOwner });
   } catch (err: any) {
     next(err);
   }
