@@ -35,7 +35,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            cd ~/neordinaryu-be
+            cd ~/neordinaryu-be-fork
             git pull
             npm ci
             npx prisma generate
