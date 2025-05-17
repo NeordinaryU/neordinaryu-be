@@ -122,9 +122,22 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
-  email: 'email',
+  userId: 'userId',
   name: 'name',
-  password: 'password'
+  email: 'email',
+  password: 'password',
+  status: 'status',
+  inactiveDate: 'inactiveDate',
+  CreatedAt: 'CreatedAt',
+  region: 'region'
+};
+
+exports.Prisma.MegazineScalarFieldEnum = {
+  id: 'id',
+  UserId: 'UserId',
+  title: 'title',
+  body: 'body',
+  CreatedAt: 'CreatedAt'
 };
 
 exports.Prisma.SessionScalarFieldEnum = {
@@ -132,6 +145,34 @@ exports.Prisma.SessionScalarFieldEnum = {
   sid: 'sid',
   data: 'data',
   expiresAt: 'expiresAt'
+};
+
+exports.Prisma.FundingScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  goalMoney: 'goalMoney',
+  fundedMoney: 'fundedMoney',
+  deadlineDate: 'deadlineDate',
+  CreatedAt: 'CreatedAt',
+  UpdatedAt: 'UpdatedAt',
+  userId: 'userId',
+  region: 'region'
+};
+
+exports.Prisma.PhotoScalarFieldEnum = {
+  id: 'id',
+  FundingId: 'FundingId',
+  url: 'url'
+};
+
+exports.Prisma.JoinedUserScalarFieldEnum = {
+  id: 'id',
+  FundingsId: 'FundingsId',
+  UserId: 'UserId',
+  fundedMoney: 'fundedMoney',
+  CreatedAt: 'CreatedAt',
+  UpdatedAt: 'UpdatedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -145,9 +186,16 @@ exports.Prisma.NullsOrder = {
 };
 
 exports.Prisma.UserOrderByRelevanceFieldEnum = {
-  email: 'email',
+  userId: 'userId',
   name: 'name',
-  password: 'password'
+  email: 'email',
+  password: 'password',
+  status: 'status'
+};
+
+exports.Prisma.MegazineOrderByRelevanceFieldEnum = {
+  title: 'title',
+  body: 'body'
 };
 
 exports.Prisma.SessionOrderByRelevanceFieldEnum = {
@@ -156,10 +204,31 @@ exports.Prisma.SessionOrderByRelevanceFieldEnum = {
   data: 'data'
 };
 
+exports.Prisma.FundingOrderByRelevanceFieldEnum = {
+  title: 'title',
+  description: 'description'
+};
+
+exports.Prisma.PhotoOrderByRelevanceFieldEnum = {
+  url: 'url'
+};
+exports.Region = exports.$Enums.Region = {
+  SEOUL: 'SEOUL',
+  INCHEON_GYEONGGI: 'INCHEON_GYEONGGI',
+  GYEONGSANG: 'GYEONGSANG',
+  CHUNGCHEONG: 'CHUNGCHEONG',
+  GANGWON: 'GANGWON',
+  JEOLLA: 'JEOLLA',
+  JEJU: 'JEJU'
+};
 
 exports.Prisma.ModelName = {
   User: 'User',
-  Session: 'Session'
+  Megazine: 'Megazine',
+  Session: 'Session',
+  Funding: 'Funding',
+  Photo: 'Photo',
+  JoinedUser: 'JoinedUser'
 };
 
 /**
