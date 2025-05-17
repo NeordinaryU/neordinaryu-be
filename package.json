@@ -9,7 +9,7 @@
     "start": "node dist/index.cjs",
     "api-docs": "swagger-cli bundle ./src/swagger/openapi.yaml --outfile build/swagger.yaml --type yaml",
     "dev": "ts-node src/index.ts"
-  },
+  }, 
   "repository": {
     "type": "git",
     "url": "git+https://github.com/NeordinaryU/neordinaryu-be.git"
