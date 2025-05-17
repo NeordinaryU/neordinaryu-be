@@ -23,9 +23,12 @@ export const createFunding = async (data: {
 };
 
 // 펀딩 ID로 조회
-export const findFundingById = async (id: number): Promise<Funding | null> => {
+export const findFundingById = async (id: number): Promise<any> => {
   const funding = await prisma.funding.findUnique({
     where: { id },
+    include: {
+      userFundings: true, // 후원자 정보 포함
+    },
   });
   return funding;
 };
