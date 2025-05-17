@@ -105,6 +105,7 @@ export const getFundingById = async (id: number): Promise<any> => {
     isOpen: funding.status, // status를 isOpen으로 변경
     createdAt: funding.createdAt,
     updatedAt: funding.updatedAt,
+    userId: funding.userId, // userId 추가
   };
 };
 
