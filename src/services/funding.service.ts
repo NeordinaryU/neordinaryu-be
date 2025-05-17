@@ -70,7 +70,7 @@ export const getAllFundings = async (
     detailAddress: funding.detailAddress,
     goalMoney: funding.goalMoney,
     fundedMoney: funding.fundedMoney,
-    achievementRate: funding.goalMoney > 0 ? Math.floor((funding.fundedMoney * 100) / Number(funding.goalMoney)) : 0,
+    achievementRate: funding.goalMoney > 0 ? Math.floor((Number(funding.fundedMoney) * 100) / Number(funding.goalMoney)) : 0,
     deadlineDate: funding.deadlineDate,
     completeDueDate: funding.completeDueDate,
     isOpen: funding.status, // status를 isOpen으로 변경
@@ -121,7 +121,7 @@ export const getFundingsByUserId = async (userId: number): Promise<any[]> => {
     detailAddress: funding.detailAddress,
     goalMoney: funding.goalMoney,
     fundedMoney: funding.fundedMoney,
-    achievementRate: funding.goalMoney > 0 ? Math.floor((funding.fundedMoney * 100) / Number(funding.goalMoney)) : 0,
+    achievementRate: funding.goalMoney > 0 ? Math.floor((Number(funding.fundedMoney) * 100) / Number(funding.goalMoney)) : 0,
     deadlineDate: funding.deadlineDate,
     completeDueDate: funding.completeDueDate,
     isOpen: funding.status, // status를 isOpen으로 변경
@@ -218,7 +218,7 @@ export const getParticipatedFundingsByUserIdService = async (userId: number): Pr
       detailAddress: pf.detailAddress,
       goalMoney: pf.goalMoney,
       fundedMoney: pf.fundedMoney,
-      achievementRate: pf.goalMoney > 0 ? Math.floor((pf.fundedMoney * 100) / Number(pf.goalMoney)) : 0,
+      achievementRate: pf.goalMoney > 0 ? Math.floor((Number(pf.fundedMoney) * 100) / Number(pf.goalMoney)) : 0,
       deadlineDate: pf.deadlineDate,
       completeDueDate: pf.completeDueDate,
       isOpen: pf.status, // status를 isOpen으로 변경
