@@ -211,7 +211,7 @@ export const fundingDonate = async (
     }
     
     // 새로운 총액 계산 (BigInt 연산)
-    const newFundedMoney = currentFunding.fundedMoney + userFundedMoney;
+    const newFundedMoney = BigInt(currentFunding.fundedMoney) + userFundedMoney;
     
     const funding = await tx.funding.update({
       where: { id: fundingId },

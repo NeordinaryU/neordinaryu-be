@@ -83,13 +83,14 @@ model Funding {
   title            String   @db.VarChar(10)
   description      String   @db.VarChar(300)
   goalMoney        BigInt   @map("goal_money")
-  fundedMoney      BigInt   @default(0) @map("funded_money")
+  fundedMoney      BigInt   @map("funded_money") // Changed from Int to BigInt
   deadlineDate     DateTime @map("deadline_date") @db.DateTime(6)
-  photoUrl         String   @map("photo_url") @db.VarChar(255)
+  photoUrl         String   @map("photo_url") @db.Text
   region           Region
   detailAddress    String   @map("detail_address") @db.VarChar(30)
   completeDueDate  DateTime @map("complete_due_date") @db.DateTime(6)
   privacyAgreement Boolean  @map("privacy_agreement")
+  isProlongation      Boolean  @map("is_prolongation") @default(false)
   status           Boolean  @default(true)
   createdAt        DateTime @default(now()) @map("created_at") @db.DateTime(6)
   updatedAt        DateTime @updatedAt @map("updated_at") @db.DateTime(6)
