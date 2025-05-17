@@ -86,6 +86,7 @@ model Funding {
   fundedMoney      Int      @map("funded_money")
   deadlineDate     DateTime @map("deadline_date") @db.DateTime(6)
   photoUrl         String   @map("photo_url") @db.VarChar(255)
+  isProlongation      Boolean  @map("is_prolongation") @default(false)
   region           Region
   detailAddress    String   @map("detail_address") @db.VarChar(30)
   completeDueDate  DateTime @map("complete_due_date") @db.DateTime(6)
