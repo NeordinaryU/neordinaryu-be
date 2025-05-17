@@ -161,7 +161,7 @@ export const getFundingDetailsHandler: RequestHandler = async (req, res, next) =
       res.sendError(400, "유효한 펀딩 ID가 필요합니다.");
       return;
     }
-    const funding = await getFundingById(Number(fundingId), userId); // userId 전달
+    const funding = await getFundingById(Number(fundingId));
     if (!funding) {
       res.sendError(404, "해당 ID의 펀딩을 찾을 수 없습니다.");
       return;
