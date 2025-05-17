@@ -18,7 +18,6 @@ class ApiResponse {
                 data: any = null
         ) {
                 return {
-                        status: "SUCCESS",
                         statusCode,
                         message,
                         data,
@@ -31,7 +30,6 @@ class ApiResponse {
                 data: any = null
         ) {
                 return {
-                        status: "FAIL",
                         statusCode,
                         message,
                         error,
