@@ -1,14 +1,6 @@
 import { PrismaClient, Funding, Region, Prisma } from "@prisma/client";
 export const prisma = new PrismaClient({ log: ["query"] });
 
-// status를 isOpen으로 매핑하는 헬퍼 함수
-const mapStatusToIsOpen = (funding: Funding): Funding & { isOpen: boolean } => {
-  return {
-    ...funding,
-    isOpen: funding.status
-  };
-};
-
 // 펀딩 생성
 export const createFunding = async (data: {
   userId: number;
@@ -35,14 +27,14 @@ export const findFundingById = async (id: number): Promise<Funding | null> => {
   const funding = await prisma.funding.findUnique({
     where: { id },
   });
-  return funding ? mapStatusToIsOpen(funding) : null;
+  return funding;
 };
 
 // 모든 펀딩 조회 (필터링 및 정렬 기능 포함)
 export const findAllFundings = async (
   region?: Region,
   align?: 'rate' | 'latest'
-): Promise<(Funding & { isOpen: boolean })[]> => {
+): Promise<Funding[]> => {
   const where = region ? { region } : {};
   
   let orderBy: Prisma.FundingOrderByWithRelationInput = {};
@@ -58,39 +50,39 @@ export const findAllFundings = async (
     where,
     orderBy,
   });
-  return fundings.map(mapStatusToIsOpen);
+  return fundings;
 };
 
 // 특정 사용자의 펀딩 조회
-export const findFundingsByUserId = async (userId: number): Promise<(Funding & { isOpen: boolean })[]> => {
+export const findFundingsByUserId = async (userId: number): Promise<Funding[]> => {
   const fundings = await prisma.funding.findMany({
     where: { userId },
   });
-  return fundings.map(mapStatusToIsOpen);
+  return fundings;
 };
 
 // 펀딩 마감일 업데이트 (연장)
 export const updateFundingDeadline = async (
   id: number,
   deadlineDate: Date
-): Promise<Funding & { isOpen: boolean }> => {
+): Promise<Funding> => {
   const funding = await prisma.funding.update({
     where: { id },
     data: { deadlineDate },
   });
-  return mapStatusToIsOpen(funding);
+  return funding;
 };
 
 // 펀딩 상태 변경 (닫기)
 export const updateFundingStatus = async (
   id: number,
-  isOpen: boolean
-): Promise<Funding & { isOpen: boolean }> => {
+  newStatus: boolean
+): Promise<Funding> => {
   const funding = await prisma.funding.update({
     where: { id },
-    data: { status: isOpen } as any,
+    data: { status: newStatus },
   });
-  return mapStatusToIsOpen(funding);
+  return funding;
 };
 
 // 후원 등록 및 펀딩 금액 업데이트
@@ -144,6 +136,6 @@ export const fundingDonate = async (
       },
     });
 
-    return { funding: mapStatusToIsOpen(funding), userFunding };
+    return { funding, userFunding };
   });
 };

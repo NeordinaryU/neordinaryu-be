@@ -109,7 +109,7 @@ export const getFundingsByUserId = async (userId: number): Promise<any[]> => {
     completeDueDate: funding.completeDueDate,
     goalMoney: funding.goalMoney,
     fundedMoney: funding.fundedMoney,
-    isOpen: funding.isOpen,
+    isOpen: funding.status,
   }));
 };
 
@@ -125,7 +125,7 @@ export const prolongFunding = async (
   }
 
   // 현재 활성 상태인지 확인
-  if (!funding.isOpen) {
+  if (!funding.status) {
     throw new Error("이미 종료된 펀딩은 연장할 수 없습니다.");
   }
 
@@ -160,7 +160,7 @@ export const closeFunding = async (
   }
 
   // 이미 닫혔는지 확인
-  if (!funding.isOpen) {
+  if (!funding.status) {
     throw new Error("이미 닫힌 펀딩입니다.");
   }
 
@@ -169,7 +169,7 @@ export const closeFunding = async (
 
   return {
     fundingId: updatedFunding.id,
-    isOpen: updatedFunding.isOpen,
+    isOpen: updatedFunding.status,
   };
 };
 
@@ -186,7 +186,7 @@ export const donateFunding = async (
   }
 
   // 활성 상태 확인
-  if (!funding.isOpen) {
+  if (!funding.status) {
     throw new Error("이미 종료된 펀딩에는 후원할 수 없습니다.");
   }
 
