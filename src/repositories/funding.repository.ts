@@ -34,14 +34,16 @@ export const findAllFundings = async (
   region?: Region,
   align?: 'rate' | 'latest'
 ): Promise<Funding[]> => {
-  const where = region ? { region } : {};
+  const where: Prisma.FundingWhereInput = {};
+  if (region) {
+    where.region = region;
+  }
   
   let orderBy: Prisma.FundingOrderByWithRelationInput = {};
   
   if (align === 'latest') {
     orderBy = { createdAt: 'desc' };
   } else if (align === 'rate') {
-    // 달성률 기준 정렬을 위한 계산 (현재는 단순 fundedMoney 기준)
     orderBy = { fundedMoney: 'desc' };
   }
   
@@ -69,14 +71,14 @@ export const updateFundingDeadline = async (
   });
 };
 
-// 펀딩 상태 변경 (닫기)
-export const updateFundingStatus = async (
+// 펀딩 상태 변경 (열기/닫기)
+export const updateFundingIsOpen = async (
   id: number,
-  status: boolean
+  isOpen: boolean
 ): Promise<Funding> => {
   return await prisma.funding.update({
     where: { id },
-    data: { status },
+    data: { isOpen },
   });
 };
 
@@ -86,9 +88,7 @@ export const fundingDonate = async (
   userId: number,
   userFundedMoney: bigint
 ): Promise<{ funding: Funding; userFunding: any }> => {
-  // 트랜잭션으로 처리
   return await prisma.$transaction(async (tx) => {
-    // 1. 기존 user_funding 조회
     const existingUserFunding = await tx.userFunding.findFirst({
       where: {
         userId,
@@ -97,21 +97,16 @@ export const fundingDonate = async (
     });
 
     let newUserFundedMoney: bigint;
-    
-    // 2. UserFunding 업데이트 또는 생성
     let userFunding;
+
     if (existingUserFunding) {
-      // 기존 후원 금액에 새로운 금액 추가
       newUserFundedMoney = existingUserFunding.userFundedMoney + userFundedMoney;
-      
       userFunding = await tx.userFunding.update({
         where: { id: existingUserFunding.id },
         data: { userFundedMoney: newUserFundedMoney },
       });
     } else {
-      // 새 후원 등록
       newUserFundedMoney = userFundedMoney;
-      
       userFunding = await tx.userFunding.create({
         data: {
           userId,
@@ -121,7 +116,6 @@ export const fundingDonate = async (
       });
     }
 
-    // 3. 펀딩 총액 업데이트
     const funding = await tx.funding.update({
       where: { id: fundingId },
       data: {

@@ -31,6 +31,7 @@ model User {
   fundings     Funding[]
   userFundings UserFunding[]
   comments     Comment[]
+  refreshTokens RefreshToken[]
 
   @@map("users")
 }
@@ -88,7 +89,7 @@ model Funding {
   detailAddress    String   @map("detail_address") @db.VarChar(30)
   completeDueDate  DateTime @map("complete_due_date") @db.DateTime(6)
   privacyAgreement Boolean  @map("privacy_agreement")
-  isOpen           Boolean  @default(true)
+  isOpen           Boolean  @default(true) @map("status")
   createdAt        DateTime @default(now()) @map("created_at") @db.DateTime(6)
   updatedAt        DateTime @updatedAt @map("updated_at") @db.DateTime(6)
 
@@ -97,4 +98,17 @@ model Funding {
   comments     Comment[]
 
   @@map("fundings")
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique @db.VarChar(512)
+  userId    Int      @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
 }

@@ -5,7 +5,7 @@ import {
   findAllFundings,
   findFundingsByUserId,
   updateFundingDeadline,
-  updateFundingStatus,
+  updateFundingIsOpen,
   fundingDonate,
 } from "../repositories/funding.repository";
 
@@ -68,8 +68,9 @@ export const getAllFundings = async (
     region: funding.region,
     goalMoney: funding.goalMoney,
     fundedMoney: funding.fundedMoney,
-    achievementRate: Math.floor((funding.fundedMoney * 100) / Number(funding.goalMoney)),
+    achievementRate: funding.goalMoney > 0 ? Math.floor((funding.fundedMoney * 100) / Number(funding.goalMoney)) : 0,
     deadlineDate: funding.deadlineDate,
+    isOpen: funding.isOpen,
   }));
 };
 
@@ -91,6 +92,7 @@ export const getFundingById = async (id: number): Promise<any> => {
     completeDueDate: funding.completeDueDate,
     goalMoney: funding.goalMoney,
     applicantComment: funding.description,
+    isOpen: funding.isOpen,
   };
 };
 
@@ -109,7 +111,7 @@ export const getFundingsByUserId = async (userId: number): Promise<any[]> => {
     completeDueDate: funding.completeDueDate,
     goalMoney: funding.goalMoney,
     fundedMoney: funding.fundedMoney,
-    status: funding.status,
+    isOpen: funding.isOpen,
   }));
 };
 
@@ -125,7 +127,7 @@ export const prolongFunding = async (
   }
 
   // 현재 활성 상태인지 확인
-  if (!funding.status) {
+  if (!funding.isOpen) {
     throw new Error("이미 종료된 펀딩은 연장할 수 없습니다.");
   }
 
@@ -140,6 +142,7 @@ export const prolongFunding = async (
   return {
     funding_id: updatedFunding.id,
     deadline_date: updatedFunding.deadlineDate,
+    isOpen: updatedFunding.isOpen,
   };
 };
 
@@ -160,16 +163,16 @@ export const closeFunding = async (
   }
 
   // 이미 닫혔는지 확인
-  if (!funding.status) {
+  if (!funding.isOpen) {
     throw new Error("이미 닫힌 펀딩입니다.");
   }
 
   // 펀딩 닫기
-  const updatedFunding = await updateFundingStatus(id, false);
+  const updatedFunding = await updateFundingIsOpen(id, false);
 
   return {
     fundingId: updatedFunding.id,
-    status: updatedFunding.status,
+    isOpen: updatedFunding.isOpen,
   };
 };
 
@@ -186,7 +189,7 @@ export const donateFunding = async (
   }
 
   // 활성 상태 확인
-  if (!funding.status) {
+  if (!funding.isOpen) {
     throw new Error("이미 종료된 펀딩에는 후원할 수 없습니다.");
   }
 
@@ -203,5 +206,6 @@ export const donateFunding = async (
     user_id: userId,
     new_user_funded_money: result.userFunding.userFundedMoney,
     updated_funding_total: result.funding.fundedMoney,
+    funding_isOpen: result.funding.isOpen,
   };
 }; 
