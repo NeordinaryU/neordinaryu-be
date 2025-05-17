@@ -1,11 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import { StatusCodes } from 'http-status-codes';
+import { PrismaClient } from '@prisma/client';
 import {
   loginService,
   refreshTokenService,
   logoutService,
   // logoutFromAllDevicesService, // 필요시 주석 해제하여 사용
 } from '../services/auth.service';
+
+const prisma = new PrismaClient();
 
 export const loginController = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -16,11 +19,17 @@ export const loginController = async (req: Request, res: Response, next: NextFun
     }
     const result = await loginService(userId, password);
     
+    // 사용자 추가 정보 얻기
+    const user = await prisma.user.findUnique({
+      where: { userId: result.user?.userId }
+    });
+    
     res.sendSuccess(StatusCodes.OK, '로그인 성공', {
         accessToken: result.accessToken,
         refreshToken: result.refreshToken,
         userId: result.user?.userId,
-        region: result.user?.region
+        region: result.user?.region,
+        isOnboarded: (user as any)?.isOnboarded || false
     });
   } catch (error) {
     next(error); // 에러는 글로벌 에러 핸들러로 전달

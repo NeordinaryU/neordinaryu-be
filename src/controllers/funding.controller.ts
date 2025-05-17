@@ -43,6 +43,49 @@ export const createFundingHandler: RequestHandler = async (req, res, next) => {
       return;
     }
 
+    // 필수 필드 검증
+    if (!title || !description || !goalMoney || !deadlineDate || !completeDueDate || !region || !detailAddress) {
+      res.sendError(400, "모든 필수 필드를 입력해주세요.");
+      return;
+    }
+
+    // 금액 검증
+    if (isNaN(Number(goalMoney)) || Number(goalMoney) <= 0) {
+      res.sendError(400, "목표 금액은 양수여야 합니다.");
+      return;
+    }
+
+    // 날짜 검증
+    const currentDate = new Date();
+    const parsedDeadlineDate = new Date(deadlineDate);
+    const parsedCompleteDueDate = new Date(completeDueDate);
+    
+    if (isNaN(parsedDeadlineDate.getTime())) {
+      res.sendError(400, "유효한 마감일을 입력해주세요.");
+      return;
+    }
+    
+    if (isNaN(parsedCompleteDueDate.getTime())) {
+      res.sendError(400, "유효한 완료 예정일을 입력해주세요.");
+      return;
+    }
+    
+    if (parsedDeadlineDate <= currentDate) {
+      res.sendError(400, "마감일은 현재보다 미래 날짜여야 합니다.");
+      return;
+    }
+    
+    if (parsedCompleteDueDate <= parsedDeadlineDate) {
+      res.sendError(400, "완료 예정일은 마감일보다 미래 날짜여야 합니다.");
+      return;
+    }
+
+    // 개인정보 동의 검증
+    if (privacyAgreement !== true) {
+      res.sendError(400, "개인정보 이용약관에 동의해주세요.");
+      return;
+    }
+
     // Region enum 타입 검증
     if (!Object.values(Region).includes(region as Region)) {
       res.sendError(400, `지역은 다음 중 하나여야 합니다: ${Object.values(Region).join(", ")}`);
@@ -54,11 +97,11 @@ export const createFundingHandler: RequestHandler = async (req, res, next) => {
       title,
       description,
       goalMoney: BigInt(goalMoney),
-      deadlineDate: new Date(deadlineDate),
+      deadlineDate: parsedDeadlineDate,
       photoUrl,
       region,
       detailAddress,
-      completeDueDate: new Date(completeDueDate),
+      completeDueDate: parsedCompleteDueDate,
       privacyAgreement,
     });
 
@@ -100,7 +143,7 @@ export const getFundingsHandler: RequestHandler = async (req, res, next) => {
     );
 
     res.sendSuccess(200, "펀딩 목록을 성공적으로 조회했습니다.", fundings);
-  } catch (err) {
+  } catch (err: any) {
     next(err);
   }
 };
@@ -118,8 +161,13 @@ export const getFundingDetailsHandler: RequestHandler = async (req, res, next) =
     
     const funding = await getFundingById(Number(fundingId));
     
+    if (!funding) {
+      res.sendError(404, "해당 ID의 펀딩을 찾을 수 없습니다.");
+      return;
+    }
+    
     res.sendSuccess(200, "펀딩 상세 정보를 성공적으로 불러왔습니다.", funding);
-  } catch (err) {
+  } catch (err: any) {
     next(err);
   }
 };
@@ -127,18 +175,19 @@ export const getFundingDetailsHandler: RequestHandler = async (req, res, next) =
 // 4. 특정 사용자 작성 펀딩 글 조회
 export const getUserFundingsHandler: RequestHandler = async (req, res, next) => {
   try {
-    const { userId } = req.params;
+    // 인증된 사용자의 ID 사용
+    const userId = req.user?.id;
     
-    // ID 유효성 검증
-    if (!userId || isNaN(Number(userId))) {
-      res.sendError(400, "유효한 사용자 ID가 필요합니다.");
+    // 인증 검증
+    if (!userId) {
+      res.sendError(401, "인증이 필요한 기능입니다.");
       return;
     }
     
-    const fundings = await getFundingsByUserId(Number(userId));
+    const fundings = await getFundingsByUserId(userId);
     
-    res.sendSuccess(200, "사용자의 펀딩 목록 조회에 성공했습니다.", fundings);
-  } catch (err) {
+    res.sendSuccess(200, "내 펀딩 목록 조회에 성공했습니다.", fundings);
+  } catch (err: any) {
     next(err);
   }
 };
@@ -146,8 +195,15 @@ export const getUserFundingsHandler: RequestHandler = async (req, res, next) => 
 // 5. 펀딩 연장하기
 export const prolongFundingHandler: RequestHandler = async (req, res, next) => {
   try {
-    const { funding: fundingId } = req.params;
-    const { deadline_date } = req.body;
+    const { fundingId } = req.params;
+    const { deadlineDate } = req.body;
+    const userId = req.user?.id;
+    
+    // 인증 검증
+    if (!userId) {
+      res.sendError(401, "인증이 필요한 기능입니다.");
+      return;
+    }
     
     // ID 유효성 검증
     if (!fundingId || isNaN(Number(fundingId))) {
@@ -156,14 +212,27 @@ export const prolongFundingHandler: RequestHandler = async (req, res, next) => {
     }
     
     // 날짜 유효성 검증
-    if (!deadline_date) {
-      res.sendError(400, "마감일(deadline_date)은 필수입니다.");
+    if (!deadlineDate) {
+      res.sendError(400, "마감일(deadlineDate)은 필수입니다.");
+      return;
+    }
+    
+    const parsedDeadlineDate = new Date(deadlineDate);
+    const currentDate = new Date();
+    
+    if (isNaN(parsedDeadlineDate.getTime())) {
+      res.sendError(400, "유효한 날짜 형식을 입력해주세요.");
+      return;
+    }
+    
+    if (parsedDeadlineDate <= currentDate) {
+      res.sendError(400, "마감일은 현재보다 미래 날짜여야 합니다.");
       return;
     }
     
     const result = await prolongFunding(
       Number(fundingId),
-      new Date(deadline_date)
+      parsedDeadlineDate
     );
     
     res.sendSuccess(200, "펀딩 일정이 성공적으로 연장되었습니다.", result);
@@ -211,16 +280,23 @@ export const closeFundingHandler: RequestHandler = async (req, res, next) => {
 export const donateFundingHandler: RequestHandler = async (req, res, next) => {
   try {
     const { fundingId } = req.params;
-    const { user_id, user_funded_money } = req.body;
+    const { userFundedMoney } = req.body;
+    const userId = req.user?.id;
     
-    // 필수 파라미터 검증
-    if (!user_id) {
-      res.sendError(400, "유저 ID(user_id)는 필수입니다.");
+    // 인증 검증
+    if (!userId) {
+      res.sendError(401, "인증이 필요한 기능입니다.");
       return;
     }
     
-    if (!user_funded_money) {
-      res.sendError(400, "후원 금액(user_funded_money)은 필수입니다.");
+    // 후원 금액 검증
+    if (!userFundedMoney) {
+      res.sendError(400, "후원 금액(userFundedMoney)은 필수입니다.");
+      return;
+    }
+    
+    if (isNaN(Number(userFundedMoney)) || Number(userFundedMoney) <= 0) {
+      res.sendError(400, "후원 금액은 양수여야 합니다.");
       return;
     }
     
@@ -230,10 +306,24 @@ export const donateFundingHandler: RequestHandler = async (req, res, next) => {
       return;
     }
     
+    // 펀딩 존재 여부 확인
+    const funding = await getFundingById(Number(fundingId));
+    
+    if (!funding) {
+      res.sendError(404, "해당 ID의 펀딩을 찾을 수 없습니다.");
+      return;
+    }
+    
+    // 자신의 펀딩에 후원하는 것 방지
+    if (funding.userId === userId) {
+      res.sendError(400, "자신이 개설한 펀딩에는 후원할 수 없습니다.");
+      return;
+    }
+    
     const result = await donateFunding(
       Number(fundingId),
-      Number(user_id),
-      BigInt(user_funded_money)
+      userId,
+      BigInt(userFundedMoney)
     );
     
     res.sendSuccess(200, "후원이 성공적으로 완료되었습니다.", result);

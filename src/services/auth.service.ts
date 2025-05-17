@@ -68,7 +68,8 @@ export const loginService = async (
     refreshToken,
     user: {
       userId: user.userId,
-      region: user.region
+      region: user.region,
+      isOnboarded: user.isOnboarded
     }
   };
 };

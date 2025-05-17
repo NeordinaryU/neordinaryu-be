@@ -35,6 +35,7 @@ export const changeUserRegion = async (userId: string, region: Region) => {
     return {
       userId: user.userId,
       region: user.region,
+      isOnboarded: (user as any).isOnboarded
     };
   } catch (err: any) {
     if (err.code === "P2025") {

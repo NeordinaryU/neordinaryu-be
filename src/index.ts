@@ -9,14 +9,21 @@ import dotenv from "dotenv";
 import { responseHandler, errorHandler } from "./utils/response.util";
 import { authenticateToken } from "./utils/auth.middleware";
 import cookieParser from 'cookie-parser';
+import { bigintMiddleware, bigintJsonSerializer } from "./utils/bigint.util";
+import { snakeToCamelMiddleware } from "./utils/case-converter.util";
 
 dotenv.config();
+
+// BigInt 값을 JSON 직렬화할 수 있도록 설정
+bigintJsonSerializer();
 
 const app = express();
 const port = parseInt(process.env.PORT || "3000", 10);
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(bigintMiddleware);
+app.use(snakeToCamelMiddleware); // 스네이크 케이스를 카멜 케이스로 변환
 
 app.use(authenticateToken);
 
