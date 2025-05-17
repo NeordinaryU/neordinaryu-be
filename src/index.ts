@@ -1,17 +1,24 @@
 import express from "express";
 import oauthRouter from "./routes/oauth";
-
 import userRouter from "./routes/user";
 import fundingRouter from "./routes/funding";
+import authRouter from "./routes/auth";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
 import dotenv from "dotenv";
 import { responseHandler, errorHandler } from "./utils/response.util";
+import { authenticateToken } from "./utils/auth.middleware";
+import cookieParser from 'cookie-parser';
+
 dotenv.config();
 
 const app = express();
-const port = 3000;
+const port = parseInt(process.env.PORT || "3000", 10);
+
 app.use(express.json());
+app.use(cookieParser());
+
+app.use(authenticateToken);
 
 app.use(responseHandler); 
 // Swagger 문서 로드
@@ -23,6 +30,8 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.get('/', (_req, res) => {
   res.sendSuccess(200, 'Hello World!');
 });
+
+app.use("/auth", authRouter);
 app.use("/oauth2", oauthRouter);
 app.use("/users", userRouter);
 app.use("/funding", fundingRouter);
