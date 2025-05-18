@@ -23,7 +23,11 @@ const app = express();
 const port = parseInt(process.env.PORT || "3000", 10);
 
 // CORS 미들웨어 추가
-app.use(cors());
+app.use(cors({
+  origin: '*', // 모든 출처 허용 (개발 환경에 적합)
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // 허용할 HTTP 메서드
+  allowedHeaders: ['Content-Type', 'Authorization'], // 허용할 헤더
+}));
 
 app.use(express.json());
 app.use(cookieParser());
