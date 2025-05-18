@@ -47,11 +47,20 @@ jobs:
             echo "변경사항 확인"
             git diff HEAD origin/main --name-status
             
+            echo "로컬 변경사항 초기화"
+            git reset --hard HEAD
+            
             echo "코드 적용하기"
             git pull origin main || { echo "Git pull 실패"; exit 1; }
             
+            echo "기존 node_modules 삭제"
+            rm -rf node_modules
+            
             echo "종속성 설치"
             npm ci || { echo "npm ci 실패"; exit 1; }
+            
+            echo "bcrypt 재빌드"
+            npm rebuild bcrypt --build-from-source || { echo "bcrypt 재빌드 실패"; exit 1; }
             
             echo "Prisma 생성"
             npx prisma generate || { echo "prisma generate 실패"; exit 1; }
