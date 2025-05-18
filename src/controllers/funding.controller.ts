@@ -146,6 +146,7 @@ export const getFundingsHandler: RequestHandler = async (req, res, next) => {
       align as 'rate' | 'latest' | undefined
     );
 
+    res.setHeader('Cache-Control', 'no-store'); // 캐시 제어 헤더 추가
     res.sendSuccess(200, "펀딩 목록을 성공적으로 조회했습니다.", fundings);
   } catch (err: any) {
     next(err);
@@ -336,6 +337,8 @@ export const getParticipatedFundingsController = async (
   try {
     const userId = req.user!.id; // authenticateToken 미들웨어에서 설정된 사용자 ID
     const fundings = await getParticipatedFundingsByUserIdService(userId);
+    
+    res.setHeader('Cache-Control', 'no-store'); // 캐시 제어 헤더 추가
     res.sendSuccess(
       StatusCodes.OK,
       "내가 참여한 펀딩 목록을 성공적으로 불러왔습니다.",
