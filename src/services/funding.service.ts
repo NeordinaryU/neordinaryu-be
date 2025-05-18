@@ -1,12 +1,12 @@
-import { Funding, Region, Prisma, UserFunding } from "@prisma/client"; // PrismaClient 제거, Prisma 타입만 사용
+import { Funding, Region, Prisma, UserFunding } from "@prisma/client";
 import {
   createFunding,
   findFundingById,
-  findAllFundings, // 이 함수들은 이미 include된 데이터를 반환합니다.
-  findFundingsByUserId, // 이 함수들은 이미 include된 데이터를 반환합니다.
+  findAllFundings,
+  findFundingsByUserId,
   updateFundingDeadline,
   updateFundingStatus,
-  fundingDonate as fundingDonateRepository, // 이름 변경 (충돌 방지)
+  fundingDonate as fundingDonateRepository,
   findParticipatedFundingsByUserId,
   findUserFundingByUserIdAndFundingId,
 } from "../repositories/funding.repository";
@@ -82,12 +82,14 @@ export const getAllFundings = async (
     achievementRate: funding.goalMoney > 0 ? Math.floor((Number(funding.fundedMoney) * 100) / Number(funding.goalMoney)) : 0,
     deadlineDate: funding.deadlineDate,
     completeDueDate: funding.completeDueDate,
-    isOpen: funding.status, // status를 isOpen으로 변경
+    isOpen: funding.status,
     createdAt: funding.createdAt,
     updatedAt: funding.updatedAt,
     user: funding.user,
     userFundings: funding.userFundings,
     comments: funding.comments,
+    funderCount: funding.userFundings.length, // 추가된 필드
+    isProlongation: funding.isProlongation, // 추가된 필드
   }));
 };
 
@@ -111,10 +113,13 @@ export const getFundingById = async (id: number): Promise<any> => {
     achievementRate: funding.goalMoney > 0 ? Math.floor((Number(funding.fundedMoney) * 100) / Number(funding.goalMoney)) : 0,
     deadlineDate: funding.deadlineDate,
     completeDueDate: funding.completeDueDate,
-    isOpen: funding.status, // status를 isOpen으로 변경
+    isOpen: funding.status,
     createdAt: funding.createdAt,
     updatedAt: funding.updatedAt,
-    userId: funding.userId, // userId 추가
+    userId: funding.userId, // 컨트롤러 호환성을 위해 추가
+    user: funding.user, 
+    funderCount: funding.userFundings.length, 
+    isProlongation: funding.isProlongation, 
   };
 };
 
@@ -134,12 +139,14 @@ export const getFundingsByUserId = async (userId: number): Promise<any[]> => {
     achievementRate: funding.goalMoney > 0 ? Math.floor((Number(funding.fundedMoney) * 100) / Number(funding.goalMoney)) : 0,
     deadlineDate: funding.deadlineDate,
     completeDueDate: funding.completeDueDate,
-    isOpen: funding.status, // status를 isOpen으로 변경
+    isOpen: funding.status,
     createdAt: funding.createdAt,
     updatedAt: funding.updatedAt,
     user: funding.user,
     userFundings: funding.userFundings,
     comments: funding.comments,
+    funderCount: funding.userFundings.length, 
+    isProlongation: funding.isProlongation, 
   }));
 };
 
@@ -185,7 +192,7 @@ export const closeFunding = async (
   const updatedFunding = await updateFundingStatus(id, false);
   return {
     fundingId: updatedFunding.id,
-    isOpen: updatedFunding.status, // 응답 시 isOpen 사용
+    isOpen: updatedFunding.status,
   };
 };
 
@@ -195,7 +202,6 @@ export const donateFunding = async (
   userId: number,
   userFundedMoney: bigint
 ): Promise<any> => {
-  // 이미 후원한 펀딩인지 확인
   const existingUserFunding = await findUserFundingByUserIdAndFundingId(userId, fundingId);
   if (existingUserFunding) {
     throw new AlreadyFundedError("이미 후원한 펀딩입니다.");
@@ -211,7 +217,7 @@ export const donateFunding = async (
   if (userFundedMoney <= 0) {
     throw new Error("후원 금액은 0보다 커야 합니다.");
   }
-  const result = await fundingDonateRepository(fundingId, userId, userFundedMoney); // 변경된 함수 이름 사용
+  const result = await fundingDonateRepository(fundingId, userId, userFundedMoney);
   return {
     fundingId: result.funding.id,
     userId: userId,
@@ -237,13 +243,15 @@ export const getParticipatedFundingsByUserIdService = async (userId: number): Pr
       achievementRate: pf.goalMoney > 0 ? Math.floor((Number(pf.fundedMoney) * 100) / Number(pf.goalMoney)) : 0,
       deadlineDate: pf.deadlineDate,
       completeDueDate: pf.completeDueDate,
-      isOpen: pf.status, // status를 isOpen으로 변경
+      isOpen: pf.status,
       createdAt: pf.createdAt,
       updatedAt: pf.updatedAt,
       user: pf.user,
-      userFundedMoneyThisUser: pf.userFundedMoney,
-      allUserFundingsOnThisFunding: pf.userFundings,
+      userFundedMoneyThisUser: pf.userFundedMoney, // 해당 유저가 이 펀딩에 후원한 금액
+      allUserFundingsOnThisFunding: pf.userFundings, // 이 펀딩에 대한 모든 유저 펀딩 정보
       comments: pf.comments,
+      funderCount: pf.userFundings.length, 
+      isProlongation: pf.isProlongation, 
     };
   });
 };
