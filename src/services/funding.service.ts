@@ -234,24 +234,14 @@ export const getParticipatedFundingsByUserIdService = async (userId: number): Pr
     return {
       fundingId: pf.id,
       title: pf.title,
-      description: pf.description,
       photoUrl: pf.photoUrl,
       region: pf.region,
       detailAddress: pf.detailAddress,
-      goalMoney: pf.goalMoney,
-      fundedMoney: pf.fundedMoney,
-      achievementRate: pf.goalMoney > 0 ? Math.floor((Number(pf.fundedMoney) * 100) / Number(pf.goalMoney)) : 0,
+      goalMoney: Number(pf.goalMoney), // BigInt를 숫자로 변환
+      fundedMoney: Number(pf.fundedMoney), // BigInt를 숫자로 변환
       deadlineDate: pf.deadlineDate,
       completeDueDate: pf.completeDueDate,
-      isOpen: pf.status,
-      createdAt: pf.createdAt,
-      updatedAt: pf.updatedAt,
-      user: pf.user,
-      userFundedMoneyThisUser: pf.userFundedMoney, // 해당 유저가 이 펀딩에 후원한 금액
-      allUserFundingsOnThisFunding: pf.userFundings, // 이 펀딩에 대한 모든 유저 펀딩 정보
-      comments: pf.comments,
-      funderCount: pf.userFundings.length, 
-      isProlongation: pf.isProlongation, 
+      userFundedMoney: Number(pf.userFundedMoney), // 해당 유저가 이 펀딩에 후원한 금액, BigInt를 숫자로 변환
     };
   });
 };
