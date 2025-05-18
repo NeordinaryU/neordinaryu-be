@@ -38,69 +38,34 @@ jobs:
             echo "===== 배포 시작 ====="
             cd ~/neordinaryu-be
             
-            echo "Git 저장소 상태 확인"
-            git status
-            
-            echo "최신 코드 가져오기"
+            # 최신 코드 가져오기
             git fetch origin main
+            git reset --hard origin/main
             
-            echo "변경사항 확인"
-            git diff HEAD origin/main --name-status
+            # 필요한 종속성 설치
+            npm ci
             
-            echo "로컬 변경사항 초기화"
-            git reset --hard HEAD
+            # Prisma 처리
+            npx prisma generate
+            npx prisma migrate deploy
             
-            echo "코드 적용하기"
-            git pull origin main || { echo "Git pull 실패"; exit 1; }
+            # 애플리케이션 빌드 (postbuild 스크립트에서 Swagger 파일이 자동으로 복사됨)
+            npm run build
             
-            echo "시스템 업데이트 및 빌드 도구 설치"
-            sudo yum update -y && sudo yum groupinstall -y "Development Tools" && sudo yum install -y python3 || { echo "빌드 도구 설치 실패"; exit 1; }
-            
-            echo "기존 node_modules 삭제"
-            rm -rf node_modules
-            
-            echo "종속성 설치"
-            npm ci || { echo "npm ci 실패"; exit 1; }
-            
-            echo "bcrypt 재빌드"
-            npm rebuild bcrypt --build-from-source || { echo "bcrypt 재빌드 실패"; exit 1; }
-            
-            echo "Prisma 생성"
-            npx prisma generate || { echo "prisma generate 실패"; exit 1; }
-            
-            echo "DB 마이그레이션"
-            npx prisma migrate deploy || { echo "prisma migrate 실패"; exit 1; }
-            
-            echo "애플리케이션 빌드"
-            npm run build || { echo "빌드 실패"; exit 1; }
-
-            echo "정적 파일 처리"
-            mkdir -p dist/swagger
-            cp -r src/swagger/* dist/swagger/ || { echo "Swagger 파일 복사 실패"; exit 1; }
-
-            # PM2가 설치되어 있지 않으면 설치
+            # PM2로 서비스 재시작
             if ! command -v pm2 &> /dev/null; then
-              echo "PM2 설치"
-              npm install -g pm2 || { echo "PM2 설치 실패"; exit 1; }
-            fi
-
-            echo "PM2 프로세스 상태 확인"
-            pm2 list
-            
-            # 실행 중인 인스턴스가 있는지 확인하고 중지
-            if pm2 list | grep -q "neordinaryu-be"; then
-              echo "기존 앱 중지 및 삭제"
-              pm2 stop neordinaryu-be
-              pm2 delete neordinaryu-be
+              npm install -g pm2
             fi
             
-            echo "새 애플리케이션 시작"
-            pm2 start npm --name "neordinaryu-be" -- start || { echo "애플리케이션 시작 실패"; exit 1; }
+            # 이미 실행 중이면 재시작, 없으면 새로 시작
+            pm2 describe neordinaryu-be > /dev/null
+            if [ $? -eq 0 ]; then
+              pm2 restart neordinaryu-be
+            else
+              pm2 start npm --name "neordinaryu-be" -- start
+            fi
             
-            echo "PM2 프로세스 최종 상태"
-            pm2 list
-            
-            echo "PM2 저장 (재부팅시 자동 시작)"
+            # 재부팅시 자동 시작 설정
             pm2 save
             
             echo "===== 배포 완료 ====="
