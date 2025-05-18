@@ -76,20 +76,15 @@ export const getAllFundings = async (
     description: funding.description,
     photoUrl: funding.photoUrl,
     region: funding.region,
-    detailAddress: funding.detailAddress,
-    goalMoney: funding.goalMoney,
-    fundedMoney: funding.fundedMoney,
+    goalMoney: Number(funding.goalMoney), // BigInt를 숫자로 변환
+    fundedMoney: Number(funding.fundedMoney), // BigInt를 숫자로 변환
     achievementRate: funding.goalMoney > 0 ? Math.floor((Number(funding.fundedMoney) * 100) / Number(funding.goalMoney)) : 0,
     deadlineDate: funding.deadlineDate,
+    detailAddress: funding.detailAddress,
     completeDueDate: funding.completeDueDate,
     isOpen: funding.status,
-    createdAt: funding.createdAt,
-    updatedAt: funding.updatedAt,
-    user: funding.user,
-    userFundings: funding.userFundings,
-    comments: funding.comments,
-    funderCount: funding.userFundings.length, // 추가된 필드
-    isProlongation: funding.isProlongation, // 추가된 필드
+    funderCount: funding.userFundings?.length ?? 0, // 안전하게 접근
+    isProlongation: funding.isProlongation, 
   }));
 };
 
@@ -108,18 +103,18 @@ export const getFundingById = async (id: number): Promise<any> => {
     photoUrl: funding.photoUrl,
     region: funding.region,
     detailAddress: funding.detailAddress,
-    goalMoney: funding.goalMoney,
-    fundedMoney: funding.fundedMoney,
+    goalMoney: Number(funding.goalMoney), // BigInt를 숫자로 변환
+    fundedMoney: Number(funding.fundedMoney), // BigInt를 숫자로 변환
     achievementRate: funding.goalMoney > 0 ? Math.floor((Number(funding.fundedMoney) * 100) / Number(funding.goalMoney)) : 0,
     deadlineDate: funding.deadlineDate,
     completeDueDate: funding.completeDueDate,
     isOpen: funding.status,
     createdAt: funding.createdAt,
     updatedAt: funding.updatedAt,
-    userId: funding.userId, // 컨트롤러 호환성을 위해 추가
-    user: funding.user, 
-    funderCount: funding.userFundings.length, 
-    isProlongation: funding.isProlongation, 
+    userId: funding.userId, 
+    user: funding.user,
+    funderCount: funding.userFundings?.length ?? 0, // 안전하게 접근
+    isProlongation: funding.isProlongation,
   };
 };
 
@@ -134,8 +129,8 @@ export const getFundingsByUserId = async (userId: number): Promise<any[]> => {
     photoUrl: funding.photoUrl,
     region: funding.region,
     detailAddress: funding.detailAddress,
-    goalMoney: funding.goalMoney,
-    fundedMoney: funding.fundedMoney,
+    goalMoney: Number(funding.goalMoney), // BigInt를 숫자로 변환
+    fundedMoney: Number(funding.fundedMoney), // BigInt를 숫자로 변환
     achievementRate: funding.goalMoney > 0 ? Math.floor((Number(funding.fundedMoney) * 100) / Number(funding.goalMoney)) : 0,
     deadlineDate: funding.deadlineDate,
     completeDueDate: funding.completeDueDate,
@@ -143,10 +138,8 @@ export const getFundingsByUserId = async (userId: number): Promise<any[]> => {
     createdAt: funding.createdAt,
     updatedAt: funding.updatedAt,
     user: funding.user,
-    userFundings: funding.userFundings,
-    comments: funding.comments,
-    funderCount: funding.userFundings.length, 
-    isProlongation: funding.isProlongation, 
+    funderCount: funding.userFundings?.length ?? 0, // 안전하게 접근
+    isProlongation: funding.isProlongation,
   }));
 };
 
@@ -237,11 +230,11 @@ export const getParticipatedFundingsByUserIdService = async (userId: number): Pr
       photoUrl: pf.photoUrl,
       region: pf.region,
       detailAddress: pf.detailAddress,
-      goalMoney: Number(pf.goalMoney), // BigInt를 숫자로 변환
-      fundedMoney: Number(pf.fundedMoney), // BigInt를 숫자로 변환
+      goalMoney: Number(pf.goalMoney),
+      fundedMoney: Number(pf.fundedMoney),
       deadlineDate: pf.deadlineDate,
       completeDueDate: pf.completeDueDate,
-      userFundedMoney: Number(pf.userFundedMoney), // 해당 유저가 이 펀딩에 후원한 금액, BigInt를 숫자로 변환
+      userFundedMoney: Number(pf.userFundedMoney),
     };
   });
 };
