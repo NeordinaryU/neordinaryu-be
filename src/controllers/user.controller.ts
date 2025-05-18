@@ -98,6 +98,7 @@ export const getUserRegionController: RequestHandler = async (
     }
 
     const result = await getUserRegionService(userId);
+    res.setHeader('Cache-Control', 'no-store'); // 캐시 제어 헤더 추가
     res.sendSuccess(
       StatusCodes.OK,
       "사용자 지역 정보를 성공적으로 조회했습니다.",

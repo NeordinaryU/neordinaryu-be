@@ -7,6 +7,7 @@ import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
 import dotenv from "dotenv";
 import morgan from "morgan"; // morgan 임포트
+import cors from "cors"; // cors 임포트
 import { responseHandler, errorHandler } from "./utils/response.util";
 import { authenticateToken } from "./utils/auth.middleware";
 import cookieParser from 'cookie-parser';
@@ -20,6 +21,9 @@ bigintJsonSerializer();
 
 const app = express();
 const port = parseInt(process.env.PORT || "3000", 10);
+
+// CORS 미들웨어 추가
+app.use(cors());
 
 app.use(express.json());
 app.use(cookieParser());
