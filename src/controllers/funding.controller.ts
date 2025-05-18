@@ -11,6 +11,7 @@ import {
   prolongFunding,
   closeFunding,
   donateFunding,
+  AlreadyFundedError, // 커스텀 에러 임포트
 } from "../services/funding.service";
 
 // 확장된 Request 타입을 위한 인터페이스 정의
@@ -317,7 +318,11 @@ export const donateFundingController = async (
       }
     );
     // 성공 시에도 명시적으로 반환하지 않음 (sendSuccess가 응답을 종료)
-  } catch (error) {
+  } catch (error: any) { // error 타입을 any로 변경하여 name 속성 접근
+    if (error instanceof AlreadyFundedError) {
+      res.sendError(StatusCodes.CONFLICT, error.message); // 409 Conflict 반환
+      return;
+    }
     next(error);
   }
 };

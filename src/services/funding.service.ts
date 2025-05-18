@@ -1,4 +1,4 @@
-import { Funding, Region, Prisma } from "@prisma/client"; // PrismaClient 제거, Prisma 타입만 사용
+import { Funding, Region, Prisma, UserFunding } from "@prisma/client"; // PrismaClient 제거, Prisma 타입만 사용
 import {
   createFunding,
   findFundingById,
@@ -6,10 +6,18 @@ import {
   findFundingsByUserId, // 이 함수들은 이미 include된 데이터를 반환합니다.
   updateFundingDeadline,
   updateFundingStatus,
-  fundingDonate,
+  fundingDonate as fundingDonateRepository, // 이름 변경 (충돌 방지)
   findParticipatedFundingsByUserId,
-  findUserFundingByUserIdAndFundingId, // 추가
+  findUserFundingByUserIdAndFundingId,
 } from "../repositories/funding.repository";
+
+// 커스텀 에러 클래스 정의
+export class AlreadyFundedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "AlreadyFundedError";
+  }
+}
 
 // 펀딩 생성
 export const createFundingService = async (data: {
@@ -190,7 +198,7 @@ export const donateFunding = async (
   // 이미 후원한 펀딩인지 확인
   const existingUserFunding = await findUserFundingByUserIdAndFundingId(userId, fundingId);
   if (existingUserFunding) {
-    throw new Error("이미 후원한 펀딩입니다.");
+    throw new AlreadyFundedError("이미 후원한 펀딩입니다.");
   }
 
   const funding = await findFundingById(fundingId);
@@ -203,7 +211,7 @@ export const donateFunding = async (
   if (userFundedMoney <= 0) {
     throw new Error("후원 금액은 0보다 커야 합니다.");
   }
-  const result = await fundingDonate(fundingId, userId, userFundedMoney);
+  const result = await fundingDonateRepository(fundingId, userId, userFundedMoney); // 변경된 함수 이름 사용
   return {
     fundingId: result.funding.id,
     userId: userId,
