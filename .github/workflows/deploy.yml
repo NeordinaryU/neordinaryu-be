@@ -53,6 +53,9 @@ jobs:
             echo "코드 적용하기"
             git pull origin main || { echo "Git pull 실패"; exit 1; }
             
+            echo "시스템 업데이트 및 빌드 도구 설치"
+            sudo yum update -y && sudo yum groupinstall -y "Development Tools" && sudo yum install -y python3 || { echo "빌드 도구 설치 실패"; exit 1; }
+            
             echo "기존 node_modules 삭제"
             rm -rf node_modules
             
